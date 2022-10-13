@@ -1,0 +1,71 @@
+---
+title: "Investigating risk factors associated with BMI: easySHARE data"
+author: "Nicole Augustin"
+output: html_document
+---
+
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+In this frst piece of coursework you will work with the easySHARE data. For information on data and variables, see the [easySHARE data  guide](http://www.share-project.org/fileadmin/pdf_documentation/easySHARE_Release_8.0.0_ReleaseGuide.pdf).
+
+
+
+## Load data
+
+Load the easySHARE data. For information on data and variables, see the [easySHARE data  guide](http://www.share-project.org/fileadmin/pdf_documentation/easySHARE_Release_8.0.0_ReleaseGuide.pdf).
+
+```{r easyshare}
+load("easySHARE_rel8_0_0.rda")
+dat<-easySHARE_rel8_0_0
+
+```
+
+
+Load packages:
+  
+```{r packs, message = FALSE}
+library(ggplot2)
+library(tidyverse)
+library(gridExtra)
+library(countrycode)
+```
+
+```{r}
+length(unique(dat$mergeid))
+table(dat$wave,dat$int_year)
+table(dat$country, dat$wave)
+
+```
+## Pre-processing 
+
+Notice the missing values (missing codes are explained on pg. 6 of missing codes of the easySHARE guide):
+
+
+
+First missings and coding of factors. Here is an example.
+
+```{r pre-processing}
+
+
+summary(dat$isced1997_r) # all negative values are missings.
+
+dat$isced1997_r[dat$isced1997_r<0] <- NA
+
+
+table(addNA(dat$isced1997_r))
+
+dat$educ<- factor(dat$isced1997_r,labels=c("0 - none", "1 - Primary education ", "2 - Lower secondary education",
+                          "3 - (Upper) secondary education",
+                          "4 - Post-secondary non-tertiary education",
+                          "5 - First stage of tertiary education","6 - Second stage of tertiary education","95: still in school", "96: other"))
+table(addNA(dat$educ)) # should make labels shorter
+
+```
+
+Next need to pick 1 - 2 waves, and up to 4 countries.
+
+Then look at summaries. e.g. boxplots, tables, scatter plots, histograms, bar charts,..
+
+
