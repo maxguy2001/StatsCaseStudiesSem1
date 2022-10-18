@@ -1,0 +1,15 @@
+---
+title: "Building model using generative approach"
+author: "us"
+output: html_document
+---
+
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r import_funcs, include=FALSE}
+source("model_functions.R")
+```
+
