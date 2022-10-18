@@ -4,12 +4,33 @@ author: "us"
 output: html_document
 ---
 
+
+
+
   
 ```{r setup, include=FALSE}
+setwd('..')
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir= getwd())
 ```
 
+
 ```{r import_funcs, include=FALSE}
-source("model_functions.R")
+source("making_model/model_functions.R")
 ```
+
+
+```{r load_data, include=FALSE}
+data_path <- paste(getwd(), "/data/easySHARE_rel8_0_0.rda", sep = "")
+load(data_path)
+df <- data.frame(easySHARE_rel8_0_0)
+rm(easySHARE_rel8_0_0)
+```
+
+
+```{r initialise_search, include=FALSE}
+initialiseSearch(df)
+```
+
+
 
