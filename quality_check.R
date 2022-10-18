@@ -134,3 +134,21 @@ print(paste(w6_num_viable, w7_num_viable))
 print(paste(c15_num_viable, c16_num_viable, c23_num_viable, c25_num_viable))
 
 #conclusion: use wave 6 only but use all 4 countries
+
+
+#wave 6 investigation
+small_bool <- small_bool %>%
+  filter(wave ==6)
+
+country_15 <- score_country(small_bool, 15)
+country_16 <- score_country(small_bool, 16)
+country_23 <- score_country(small_bool, 23)
+country_25 <- score_country(small_bool, 25)
+
+c15_num_viable <- sum(country_15$viable_columns)
+c16_num_viable <- sum(country_16$viable_columns)
+c23_num_viable <- sum(country_23$viable_columns)
+c25_num_viable <- sum(country_25$viable_columns)
+
+print(paste(c15_num_viable, c16_num_viable, c23_num_viable, c25_num_viable))
+
