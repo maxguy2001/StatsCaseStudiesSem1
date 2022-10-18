@@ -17,7 +17,7 @@ In this frst piece of coursework you will work with the easySHARE data. For info
 Load the easySHARE data. For information on data and variables, see the [easySHARE data  guide](http://www.share-project.org/fileadmin/pdf_documentation/easySHARE_Release_8.0.0_ReleaseGuide.pdf).
 
 ```{r easyshare}
-load("easySHARE_rel8_0_0.rda")
+load("data/easySHARE_rel8_0_0.rda")
 dat<-easySHARE_rel8_0_0
 
 ```
@@ -42,6 +42,39 @@ table(dat$country, dat$wave)
 
 Notice the missing values (missing codes are explained on pg. 6 of missing codes of the easySHARE guide):
 
+```{r}
+
+dat[dat < 0] <- NA
+
+data_countries <- dat[dat$country %in% c(15, 16, 23, 35), ]
+
+data_full <- data_countries[data_countries$wave %in% c(6), ]
+
+data_full_2 <- dat[dat$wave %in% c(5, 6, 7), ]
+```
+
+```{r}
+# REMOVES COLUMNS WITH ONLY NA's and first 3 columns which don't add value
+data_full <- data_full[ ,  !names(data_full) %in% 
+    c("mergeid", "hhid", "coupleid", "q34_re", 
+      "income_pct_w1", "income_pct_w2", "income_pct_w4", "income_pct_w8", "income_pct_w7", "income_pct_w5",   "ep011_mod", "ep009_mod", "ep013_mod", "ep026_mod", "ep036_mod",
+      "sp003_2_mod", "sp003_3_mod", "sp003_1_mod", "sp009_3_mod", "sp009_2_mod", "sp009_1_mod",
+      "bfi10_agree_mod", "bfi10_consc_mod", "bfi10_neuro_mod", "br010_mod", "bfi10_extra_mod", "bfi10_open_mod"
+       )]
+
+summary(lm(bmi ~. , data = data_full))
+
+```
+
+```{r}
+# MERGE INCOME COLUMNS
+# MERGE COLUMNS IF WAVE SPECIFIC
+```
+
+```{r}
+first_model <- lm(bmi ~ age + ever_smoked + country + vaccinated, data = data_full)
+summary(first_model)
+```
 
 
 First missings and coding of factors. Here is an example.
@@ -49,10 +82,26 @@ First missings and coding of factors. Here is an example.
 ```{r pre-processing}
 
 
-summary(dat$isced1997_r) # all negative values are missings.
 
-dat$isced1997_r[dat$isced1997_r<0] <- NA
+```
 
+```{r}
+table(is.na(dat$wave), dat$country)
+table(is.na(dat$language_age10), dat$wave)
+```
+
+
+```{r}
+
+
+```
+
+
+```{r}
+table(dat$bmi2, dat$int_year)
+```
+
+```{r}
 
 table(addNA(dat$isced1997_r))
 
