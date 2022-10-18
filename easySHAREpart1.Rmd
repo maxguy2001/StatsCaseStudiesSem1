@@ -48,32 +48,48 @@ dat[dat < 0] <- NA
 
 data_countries <- dat[dat$country %in% c(15, 16, 23, 35), ]
 
-data_full <- data_countries[data_countries$wave %in% c(6), ]
 
-data_full_2 <- dat[dat$wave %in% c(5, 6, 7), ]
 ```
 
 ```{r}
+plot(data_full$country, data_full$br010_mod)
+```
+
+
+```{r}
 # REMOVES COLUMNS WITH ONLY NA's and first 3 columns which don't add value
+
+data_full <- data_countries[data_countries$wave %in% c(6), ]
+
 data_full <- data_full[ ,  !names(data_full) %in% 
-    c("mergeid", "hhid", "coupleid", "q34_re", 
-      "income_pct_w1", "income_pct_w2", "income_pct_w4", "income_pct_w8", "income_pct_w7", "income_pct_w5",   "ep011_mod", "ep009_mod", "ep013_mod", "ep026_mod", "ep036_mod",
-      "sp003_2_mod", "sp003_3_mod", "sp003_1_mod", "sp009_3_mod", "sp009_2_mod", "sp009_1_mod",
-      "bfi10_agree_mod", "bfi10_consc_mod", "bfi10_neuro_mod", "br010_mod", "bfi10_extra_mod", "bfi10_open_mod"
+    c("mergeid", "hhid", "coupleid",
+    "q34_re",
+   "sp009_1_mod"  ,    "sp009_2_mod"  ,"sp009_3_mod" 
+       
+ ,"books_age10"     , "maths_age10"  
+ ,"language_age10"  , "vaccinated"  , "childhood_health",
+      
+  "income_pct_w1", "income_pct_w2", "income_pct_w4", "income_pct_w8", "income_pct_w7", "income_pct_w5", 
+ 
+ "bfi10_extra_mod" , "bfi10_agree_mod" 
+, "bfi10_consc_mod" , "bfi10_neuro_mod" , "bfi10_open_mod"  
+,"hc002_mod"               
+        
+,  "numeracy_1"          
+ ,"ep005_"                        
+ ,"br010_mod" , "ep009_mod"      , "ep011_mod"           
+, "ep026_mod"      , "ep036_mod"       ,"ep013_mod"           
+ 
        )]
 
 summary(lm(bmi ~. , data = data_full))
 
+# 
 ```
 
 ```{r}
-# MERGE INCOME COLUMNS
-# MERGE COLUMNS IF WAVE SPECIFIC
-```
-
-```{r}
-first_model <- lm(bmi ~ age + ever_smoked + country + vaccinated, data = data_full)
-summary(first_model)
+# MERGE INCOME COLUMNS if looking at more than 1 wave
+# MERGE COLUMNS IF WAVE SPECIFIC 
 ```
 
 
@@ -90,11 +106,6 @@ table(is.na(dat$wave), dat$country)
 table(is.na(dat$language_age10), dat$wave)
 ```
 
-
-```{r}
-
-
-```
 
 
 ```{r}
