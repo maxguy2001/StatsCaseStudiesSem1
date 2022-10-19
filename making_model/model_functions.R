@@ -32,6 +32,10 @@ removeBadColumns <-function(df){
   #remove low quality columns from dataframe
   df <- df[-cols_to_remove]
   
+  #remove wave and year columns
+  df <- df %>%
+    select(-c(wave, int_year))
+  
   return(df)
 }
 
@@ -54,7 +58,7 @@ setNanValues <- function(df){
 initialiseSearch <- function(df){
   
   #make global vector for storing evaluations
-  evaluations <<- c()
+  evaluations <<- c(0)
   
   #make global log for model construction process
   sink("output.txt")
@@ -74,7 +78,7 @@ initialiseSearch <- function(df){
   
   #remove low quality columns
   df <- removeBadColumns(df)
-  
+
   #flag bad datapoints as NAc
   df <- setNanValues(df)
 
@@ -82,6 +86,8 @@ initialiseSearch <- function(df){
   df_all <<- data.frame(df)
   df_model <<- data.frame(df) %>%
     select(bmi)
+  
+  rm(df)
 }
 
 #make logging function
@@ -90,6 +96,30 @@ logger <- function(string){
   cat("\n")
   cat(string)
   sink()
+}
+
+#checks if 2 vectors can be correlated against each other
+checkVectorsUseable <- function(vec1, vec2){
+  nan_index_values <- c()
+  
+  for(i in 1:length(vec1)){
+    if(is.na(vec1[i]) || is.na(vec2[i])){
+      nan_index_values <- append(nan_index_values, i)
+    }
+  }
+  
+  if(length(nan_index_values) == 0){
+    return(TRUE)
+  }
+  
+  vec1 <- vec1[-c(nan_index_values)]
+  vec2 <- vec2[-c(nan_index_values)]
+  
+  if(length(unique(vec1)) == 1 || length(unique(vec2)) == 1){
+    return(FALSE)
+  }else{
+    return(TRUE)
+  }
 }
 
 
@@ -108,12 +138,16 @@ findMaxCorr <- function(df_all, df_model, iternum){
   
   #populate correlations vector
   for(i in 1:dim(df_all)[2]){
-    correlation <- cor(df_all$bmi, df_all[[i]], use="complete.obs")
-    correlations <- append(correlations, correlation)
+    if(checkVectorsUseable(df_all$bmi, df_all[[i]]) == TRUE){
+      correlation <- cor(df_all$bmi, df_all[[i]], use="complete.obs")
+      correlations <- append(correlations, correlation)
+    }else{
+      correlations <- append(correlations, NA)
+    }
   }
   
   #sort correlations vector to get largest values
-  sorted_correlations <- sort(abs(correlations), decreasing=TRUE, na.rm=TRUE, index.return=TRUE)
+  sorted_correlations <- sort(abs(correlations), decreasing=TRUE, index.return=TRUE)
   
   #log best (3) correlated variables in dataframe
   best_3_cors_column_names <- column_names[sorted_correlations$ix[2:4]]
@@ -122,8 +156,19 @@ findMaxCorr <- function(df_all, df_model, iternum){
   logger(paste("With absolute correlation values: ", best_3_cors_values))
   
   sorted_correlations$colnames <- column_names[sorted_correlations$ix]
-  
+  logger("found best correlations")
   return(sorted_correlations)
+}
+
+#prints the most correlated values and what column it is to assist manual decision making
+printNBestCorrelations <- function(correlations, n){
+  correlation_vals <- correlations$x
+  correlations_indexes <- correlations$ix
+  correlation_names <- correlations$colnames
+  for(i in 1:n){
+    print(paste(correlation_names[i], correlation_vals[i], correlations_indexes[i]))
+  }
+  logger(paste("Printed best ", n, " correlations"))
 }
 
 
@@ -133,22 +178,23 @@ switchColumnToModel <- function(df_all, df_model, column_to_switch){
   df_model[[column_to_switch]] <<- df_all[[column_to_switch]]
   df_all <<- df_all %>%
     select(-c(column_to_switch))
+  logger(paste("Swiched column ", column_to_switch, " from df_all to df_model"))
 }
 
 
-replaceNanVals <- function(df_model){
+replaceNanVals <- function(){
   #replaces the nan values in a column with the mean of the column
   df_model <<- df_model %>%
-    mutate_all(~ifelse(is.na(.x), mean(.xm na.rm = TRUE), .x))
+    mutate_all(~ifelse(is.na(.x), mean(.x, na.rm = TRUE), .x))
 }
 
-removeNanVals <- function(df_model){
+removeNanVals <- function(){
   #removes all nan values from dataframe
   df_model <<- df_model %>%
     drop_na()
 }
 
-makeModel <- function(df_model, iternum, nan_method = "remove"){
+makeModel <- function(nan_method = "remove"){
   #remove all na from dataframe or replace with mean?
   if(nan_method == "remove"){
     removeNanVals()
@@ -157,21 +203,36 @@ makeModel <- function(df_model, iternum, nan_method = "remove"){
   }
   
   #construct linear model of bmi against rest of dataframe
-  #return linear model?
+  model <- lm(bmi~ ., data=df_model)
+  
+  #assign global
+  model <<- model
+  logger("Sucessfully made model")
+  
+  #no return statement necessary
 }
 
 
-evaluateModel <- function(df_model, iternum, kwargs=None){
-  #call make model
-  #evaluate model (plots, stats)
-  #store numerical evaluation somewhere
-  #return selection of evaluations
+evaluateModel <- function(){
+  #model has already been made and is in global scope
+  #therefore we only need to return summary and append eval to evals vector
+  model_summary <- summary(model)
+  r_squared <- model_summary$r.squared
+  evaluations <<- append(evaluations, r_squared)
+  
+  logger("Evaluted model")
+  return(model_summary)
 }
 
-
-quantifyImprovements <- function(iternum){
-  #check we're not on iteration 1
-  #return some measure of how much the model n has
-  #improved from model n-1
+#check how much the r squared has improved on this iteration of the model
+quantifyImprovements <- function(){
+  #improvement = r^2(n) - r^2(n-1)
+  improvement <- evaluations[length(evaluations)] - evaluations[length(evaluations)-1]
+  logger("Evaluated model improvement")
+  logger(paste("Finished iteration", iternum))
+  
   #add 1 to iteration number
+  iternum <- iternum + 1
+
+  return(improvement)
 }
