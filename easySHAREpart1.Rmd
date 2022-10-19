@@ -11,7 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 In this frst piece of coursework you will work with the easySHARE data. For information on data and variables, see the [easySHARE data  guide](http://www.share-project.org/fileadmin/pdf_documentation/easySHARE_Release_8.0.0_ReleaseGuide.pdf).
 
 
-
 ## Load data
 
 Load the easySHARE data. For information on data and variables, see the [easySHARE data  guide](http://www.share-project.org/fileadmin/pdf_documentation/easySHARE_Release_8.0.0_ReleaseGuide.pdf).
@@ -52,7 +51,7 @@ data_countries <- dat[dat$country %in% c(15, 16, 23, 35), ]
 ```
 
 ```{r}
-plot(data_full$country, data_full$br010_mod)
+
 ```
 
 
@@ -61,7 +60,7 @@ plot(data_full$country, data_full$br010_mod)
 
 data_full <- data_countries[data_countries$wave %in% c(6), ]
 
-data_full <- data_full[ ,  !names(data_full) %in% 
+data_full_model <- data_full[ ,  !names(data_full) %in% 
     c("mergeid", "hhid", "coupleid",
     "q34_re",
    "sp009_1_mod"  ,    "sp009_2_mod"  ,"sp009_3_mod" 
@@ -71,9 +70,9 @@ data_full <- data_full[ ,  !names(data_full) %in%
       
   "income_pct_w1", "income_pct_w2", "income_pct_w4", "income_pct_w8", "income_pct_w7", "income_pct_w5", 
  
- "bfi10_extra_mod" , "bfi10_agree_mod" 
+ "bfi10_extra_mod" 
 , "bfi10_consc_mod" , "bfi10_neuro_mod" , "bfi10_open_mod"  
-,"hc002_mod"               
+,"hc002_mod" , "bfi10_agree_mod"            
         
 ,  "numeracy_1"          
  ,"ep005_"                        
@@ -82,7 +81,7 @@ data_full <- data_full[ ,  !names(data_full) %in%
  
        )]
 
-summary(lm(bmi ~. , data = data_full))
+summary(lm(bmi ~. , data = data_full_model))
 
 # 
 ```
