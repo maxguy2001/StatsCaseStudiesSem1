@@ -49,7 +49,7 @@ printNBestCorrelations(corrs, 5)
 switchColumnToModel(df_all, df_model, "chronic_mod")
 
 #make linear model
-makeModel()
+makeModel(df_model)
 
 #show summary of linear model. You can add pplots  to function if you want?
 model_summary <- evaluateModel()
