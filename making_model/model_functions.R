@@ -88,6 +88,7 @@ initialiseSearch <- function(df){
     select(bmi)
   
   rm(df)
+  
 }
 
 #make logging function
@@ -182,28 +183,30 @@ switchColumnToModel <- function(df_all, df_model, column_to_switch){
 }
 
 
-replaceNanVals <- function(){
+replaceNanVals <- function(df){
   #replaces the nan values in a column with the mean of the column
-  df_model <<- df_model %>%
+  df <- df %>%
     mutate_all(~ifelse(is.na(.x), mean(.x, na.rm = TRUE), .x))
+  return(df)
 }
 
-removeNanVals <- function(){
+removeNanVals <- function(df){
   #removes all nan values from dataframe
-  df_model <<- df_model %>%
+  df <- df %>%
     drop_na()
+  return(df)
 }
 
-makeModel <- function(nan_method = "remove"){
+makeModel <- function(df_model, nan_method = "remove"){
   #remove all na from dataframe or replace with mean?
   if(nan_method == "remove"){
-    removeNanVals()
+    df <- removeNanVals(df_model)
   }else{
-    replaceNanVals()
+    df <- replaceNanVals(df_model)
   }
   
   #construct linear model of bmi against rest of dataframe
-  model <- lm(bmi~ ., data=df_model)
+  model <- lm(bmi~ ., data=df)
   
   #assign global
   model <<- model
