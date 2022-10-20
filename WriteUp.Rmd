@@ -1,0 +1,88 @@
+---
+title: "WriteUp"
+author: "Group"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-data, echo = FALSE}
+load("data/easySHARE_rel8_0_0.rda")
+dat<-easySHARE_rel8_0_0
+```
+
+```{r packs, message = FALSE}
+library(ggplot2)
+library(tidyverse)
+library(gridExtra)
+library(countrycode)
+```
+
+## Introduction
+
+This investigation was carried out by Katrina Sanders, s1901708, Kim Johnson, s19 , and Max Guy, s19 .
+
+This report explores risk factors of obesity using the easySHARE data. This data was collected...
+
+The main questions we have attempted to answer are:
+1. Which of the variables are associated with bmi(an indicator of obesity)? 
+2. Are the associations between risk factors and obesity the same for males and females?
+
+Our report also considers the strength and nature of the associations between risk factors. 
+
+In order to begin our analysis we chose to work a subset of the data which covered 1 wave and 4 countries. We made the decisions for these based on the quality of the data. Since in our initial data exploration we noticed that many values were missing we wanted to choose a wave and countries within in it which had the best quality of data. We judged this on which had the least amount of missing data and constructed a function like this...
+
+From this we found wave 6 to be best along with countries 15, 16, 23, and 35 which represent Spain, Italy, ??, and Estonia respectively. Wave 6 was carried out in 2016?? so the data is still fairly current as well as not being skewed by COVID-19, which may have occurred from data collected in 2020 onwards. 
+This higher quality of data will mean we are able to make more accurate conclusions. 
+After choosing our subset of the data we began with dealing with all the missing values. We did this by replacing them all with Na's so we could look into the data further. 
+
+
+```{r sorting-df, echo = FALSE}
+dat[dat < 0] <- NA
+
+data_countries <- dat[dat$country %in% c(15, 16, 23, 35), ]
+
+data_full <- data_countries[data_countries$wave %in% c(6), ]
+```
+
+```{r echo = FALSE}
+variables <- length(data_full)
+observations <- nrow(data_full)
+```
+
+From here we started very high level and looked at summary statistics. 
+The first thing we noted of importance was the vast number of variables within the data and observations, in total there are `variables` variables, and `observations` observations. The large amount of data available made us confident in our wave and country selections. However, at this point we did notice how many NA values we have within the data in total. 
+
+This lead us to disregarding these columns as they will be of no importance in our investigation. We also 
+
+
+
+```{r}
+data_full %>%
+  ggplot(aes(x=bmi)) +
+  geom_density(fill = "#69b3a2")
+```
+
+
+
+
+
+```{r bmi females vs males, echo=FALSE}
+data_full %>%
+  ggplot(aes(x=as.factor(chronic_mod), y=bmi)) +
+  geom_boxplot(fill = "slateblue")
+```
+
+We also initially explored the difference in bmi between males and females. From this plot we can see that males have a bmi much more concentrated around their mean, however females have a wider spread of bmi values. 
+
+```{r female-vs-male, echo = FALSE}
+data_full %>%
+  ggplot(aes(x = bmi, color = as.factor(female))) +
+  geom_density(adjust = 1.5, alpha = 0.4) 
+```
+
+The next step in our analysis was to build up a linear model using factors that affect bmi. We did this by creating a function which analyses the variables that we need to include in our model based on their correlation with bmi. We then continued this process until we got to a point that adding in a new variable was no 
+
+- removing columns where 
