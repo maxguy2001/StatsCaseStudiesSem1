@@ -1,0 +1,65 @@
+---
+title: "Building model using generative approach"
+author: "us"
+output: html_document
+---
+
+
+
+
+  
+```{r setup, include=FALSE}
+#setup stuff, can ignore
+setwd('..')
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir= getwd())
+```
+
+
+```{r import_funcs, include=FALSE}
+#import functions file
+source("making_model/model_functions.R")
+```
+
+
+```{r load_data, include=FALSE}
+#load data into environment
+data_path <- paste(getwd(), "/data/easySHARE_rel8_0_0.rda", sep = "")
+load(data_path)
+df <- data.frame(easySHARE_rel8_0_0)
+rm(easySHARE_rel8_0_0)
+```
+
+
+```{r initialise_search, include=FALSE}
+#initialise everything we need to use such as logger and necessary vectors (takes a while)
+initialiseSearch(df)
+```
+
+Example iteration:
+
+```{r correlations-iteration-1, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-1, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "chronic_mod")
+
+#make linear model
+makeModel()
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-1, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
