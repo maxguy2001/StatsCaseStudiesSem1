@@ -292,3 +292,137 @@ model_summary
 model_improvement <- quantifyImprovements()
 model_improvement
 ```
+
+Iteration 11:
+```{r correlations-iteration-11, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-11, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "euro9")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-11, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+#### AT THIS POINT THE ADJUSTED R^2 GOES DOWN!!!!
+
+Iteration 12:
+```{r correlations-iteration-12, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-12, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "sp003_3_mod")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-12, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+
+Iteration 13:
+```{r correlations-iteration-13, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-13, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "female")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-13, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 14:
+```{r correlations-iteration-14, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-14, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "ep013_mod")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-14, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 15:
+```{r correlations-iteration-15, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-15, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "sp003_2_mod")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-15, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
