@@ -205,6 +205,8 @@ makeModel <- function(df_model, nan_method = "remove"){
     df <- replaceNanVals(df_model)
   }
   
+  print(paste("num useable rows: ", dim(df)[1]))
+  
   #construct linear model of bmi against rest of dataframe
   model <- lm(bmi~ ., data=df)
   
