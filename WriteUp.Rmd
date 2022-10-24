@@ -95,11 +95,3 @@ In our case we arrived at the
 - note: during model selection human decisions rather than iterative until occurrance of r^2
 
 
-- change code chunk names for model_construction.Rmd
-- keep running it step by step, last step should keep as a global vector 
-
-```{r}
-cor(df_all, df_all, use="pairwise.complete.obs")
-```
-
-

@@ -322,7 +322,7 @@ Iteration 11:
 #model_improvement
 ``` 
 
-Here we have euro9 with a p-value of 0.2239 and only changing the r^2 by 0.0011 therefore we have decided not to use this variable. This variable is... We also looked at the correlation of this with chronic mod = 0.2267, lgmuscle = 0.3648, mobilityind = 0.3425, grossmotor = 0.2951, casp = -0.3505. 
+Here we have euro9 with a p-value of 0.2239 and only changing the r^2 by 0.0011 therefore we have decided not to use this variable. This variable is describing... We also looked at the correlation of this with chronic mod = 0.2267, lgmuscle = 0.3648, mobilityind = 0.3425, and grossmotor = 0.2951. These are all fairly high so we beleive leaving this out of our model is fine, as the other variables will account for this.
 
 #### AT THIS POINT WE STOP?
 
@@ -360,3 +360,18 @@ Our final linear model is
 summary(model)
 ```
 
+```{r check-model}
+par(mfrow=c(2,2))
+plot(model)
+```
+
+
+Residual vs Fitted: 
+The residuals "bounce randomly" around the residuals = 0 line, suggesting that the assumption that the relationship is linear is reasonable.In addition, the residuals roughly form a horizontal band around the residuals = 0 line, which suggests that the variances of the error terms are equal. Finally, no single residual stands out from the basic random pattern of residuals, suggesting that there are no outliers.
+
+Normal Q-Q plot: From this plot we can assume normality since all points approximately fall along the reference line. However you can see this isn't as true for those in the higher quantile, but roughly speaking it is true. 
+
+Scale-Location: The red line is approximately horizontal so the average magnitude of the standardized residuals isn't changing much across all fitted values and the spread around the red line also doesn't vary much across the fitted values so the variability is pretty constant. 
+
+Residuals vs Leverage:
+This plot helps us to find influential cases, if there are any. We watch out for outlying values at the upper right corner or at the lower right corner. Those spots are the places where cases can be influential against a regression line. Since the majority of our points have low leverage they have a weak influence on the coefficients in the regression model. 
