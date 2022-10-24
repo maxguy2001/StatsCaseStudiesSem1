@@ -23,7 +23,8 @@ library(countrycode)
 
 This investigation was carried out by Katrina Sanders, s1901708, Kim Johnson, s1936036 , and Max Guy, s1945362. 
 
-This report explores risk factors of obesity using the easySHARE data. This data was collected...
+This report explores risk factors of obesity using the easySHARE data. 
+SHARE is the Survey of Health, Ageing and Retirment in Europe where easySHARE is a simplified dataset which was adapted for student training and teaching from the original data.  This was collected based mostly in Europe, about all aspects of life over many years where individuals, couples or household were questioned. The main topics of this data were selected such as demographics, household composition, social support, childhood conditions and health, functional limitations indices and work & money.  The data has 107 variables with 412110 observations which was observed over 8 waves of surveys.
 
 The main questions we have attempted to answer are:
 1. Which of the variables are associated with bmi(an indicator of obesity)? 
@@ -97,5 +98,8 @@ In our case we arrived at the
 - change code chunk names for model_construction.Rmd
 - keep running it step by step, last step should keep as a global vector 
 
+```{r}
+cor(df_all, df_all, use="pairwise.complete.obs")
+```
 
 
