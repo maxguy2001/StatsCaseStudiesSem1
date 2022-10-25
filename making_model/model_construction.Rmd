@@ -247,27 +247,27 @@ model_improvement
 Iteration 9:
 ```{r correlations-iteration-9, include=FALSE}
 #find most highly correlated column
-corrs <- findMaxCorr(df_all, df_model, iternum)
-printNBestCorrelations(corrs, 5)
+#corrs <- findMaxCorr(df_all, df_model, iternum)
+#printNBestCorrelations(corrs, 5)
 ```
 
 ```{r make-model-9, include=FALSE}
 #swich highly correlated column to model dataframe
-switchColumnToModel(df_all, df_model, "gender_partner")
+#switchColumnToModel(df_all, df_model, "gender_partner")
 
 #make linear model
-makeModel(df_model)
+#makeModel(df_model)
 
 #show summary of linear model. You can add pplots  to function if you want?
-model_summary <- evaluateModel()
-model_summary
+#model_summary <- evaluateModel()
+#model_summary
 ```
 
 
 ```{r make-model-9, include=FALSE}
 #show improvement over last iteration
-model_improvement <- quantifyImprovements()
-model_improvement
+#model_improvement <- quantifyImprovements()
+#model_improvement
 ```
 
 Iteration 10:
@@ -299,29 +299,31 @@ model_improvement
 Iteration 11:
 ```{r correlations-iteration-11, include=FALSE}
 #find most highly correlated column
-#corrs <- findMaxCorr(df_all, df_model, iternum)
-#printNBestCorrelations(corrs, 5)
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
 ```
 
 ```{r make-model-11, include=FALSE}
 #swich highly correlated column to model dataframe
-#switchColumnToModel(df_all, df_model, "euro9")
+switchColumnToModel(df_all, df_model, "euro9")
 
 #make linear model
-#makeModel(df_model)
+makeModel(df_model)
 
 #show summary of linear model. You can add pplots  to function if you want?
-#model_summary <- evaluateModel()
-#model_summary
+model_summary <- evaluateModel()
+model_summary
 ```
 
 
 ```{r make-model-11, include=FALSE}
 #show improvement over last iteration
-#model_improvement <- quantifyImprovements()
-#model_improvement
+model_improvement <- quantifyImprovements()
+model_improvement
 ``` 
 
+
+KEEP 11 
 Here we have euro9 with a p-value of 0.2239 and only changing the r^2 by 0.0011 therefore we have decided not to use this variable. This variable is describing... We also looked at the correlation of this with chronic mod = 0.2267, lgmuscle = 0.3648, mobilityind = 0.3425, and grossmotor = 0.2951. These are all fairly high so we beleive leaving this out of our model is fine, as the other variables will account for this.
 
 #### AT THIS POINT WE STOP?
@@ -352,9 +354,65 @@ Iteration 12:
 #model_improvement
 ```
 
+GET RID OF THIS BECAUSE IT ONLY USES 93 ROWS DUE TO NAs. 
 Although adding this next variable in making the r^2 go up to 0.2043, the p-values for each variable (except casp) are too high (all above 0.05). Therefore we have decided to stop our model at this point and make a trade off between keeping variable p-values low and getting a high r^2 value. 
 
-Our final r^2 value is therefore 0.09157
+
+
+Iteration 13:
+```{r correlations-iteration-13, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-13, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "female")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-12, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+#model_improvement
+```
+
+Iteration 14:
+```{r correlations-iteration-14, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 8)
+```
+
+```{r make-model-14, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "ep013_mod")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-14, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Our final r^2 value is therefore 0.1401
+
 Our final linear model is
 ```{r}
 summary(model)
