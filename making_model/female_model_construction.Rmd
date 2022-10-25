@@ -29,7 +29,7 @@ rm(easySHARE_rel8_0_0)
 
 ```{r initialise_search, include=FALSE}
 #initialise everything we need to use such as logger and necessary vectors (takes a while)
-df <- df %>% select(female == 1)
+df <- df %>% filter(female == 1)
 initialiseSearch(df)
 ```
 
