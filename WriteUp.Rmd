@@ -23,7 +23,8 @@ library(countrycode)
 
 This investigation was carried out by Katrina Sanders, s1901708, Kim Johnson, s1936036 , and Max Guy, s1945362. 
 
-This report explores risk factors of obesity using the easySHARE data. This data was collected...
+This report explores risk factors of obesity using the easySHARE data. 
+SHARE is the Survey of Health, Ageing and Retirment in Europe where easySHARE is a simplified dataset which was adapted for student training and teaching from the original data.  This was collected based mostly in Europe, about all aspects of life over many years where individuals, couples or household were questioned. The main topics of this data were selected such as demographics, household composition, social support, childhood conditions and health, functional limitations indices and work & money.  The data has 107 variables with 412110 observations which was observed over 8 waves of surveys.
 
 The main questions we have attempted to answer are:
 1. Which of the variables are associated with bmi(an indicator of obesity)? 
@@ -87,15 +88,7 @@ As mentioned previously we found that many columns included a large number of NA
 
 From here we have constructed a data frame we want to use to then complete our linear model analysis. The next step we took was to calculate the correlations of each variable to bmi and rank them, showing the top 5. Here we ignore both bmi, and bmi 2, as bmi 2 is just a grouped data version of bmi. We then look for the highest correlation from the other variables and add this column of data to a new data frame and remove it from our original. This new data frame is then used to make a linear model with the column and produce an r^2 value. The same process is then repeated (with the original data frame - the previous column selected) and another r^2 value is produced. This process keeps repeating, adding more and more variables until the value of r^2 for the nth iteration isn't significantly different to the value of r^2 for the (n-1)th iteration. At this point we know the extra variable we are adding isn't adding value to our model, and therefore we end up with our final linear model. 
 
-In our case we arrived at the 
-
-- NA's removed 
 
 - note: during model selection human decisions rather than iterative until occurrance of r^2
-
-
-- change code chunk names for model_construction.Rmd
-- keep running it step by step, last step should keep as a global vector 
-
 
 
