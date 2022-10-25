@@ -1,0 +1,429 @@
+---
+title: "Building model using generative approach"
+author: "us"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+#setup stuff, can ignore
+setwd('..')
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir= getwd())
+```
+
+
+```{r import_funcs, include=FALSE}
+#import functions file
+source("making_model/model_functions.R")
+```
+
+
+```{r load_data, include=FALSE}
+#load data into environment
+data_path <- paste(getwd(), "/data/easySHARE_rel8_0_0.rda", sep = "")
+load(data_path)
+df <- data.frame(easySHARE_rel8_0_0)
+rm(easySHARE_rel8_0_0)
+```
+
+
+```{r initialise_search, include=FALSE}
+#initialise everything we need to use such as logger and necessary vectors (takes a while)
+df <- df %>% select(female == 1)
+initialiseSearch(df)
+```
+
+Example iteration:
+
+```{r correlations-iteration-1, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-1, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "chronic_mod")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-1, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 2:
+```{r correlations-iteration-2, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-2, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "lgmuscle")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-2, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 3:
+```{r correlations-iteration-3, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-3, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "mobilityind")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-3, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 4:
+```{r correlations-iteration-4, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-4, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "sphus")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-4, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 5:
+```{r correlations-iteration-5, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-5, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "eduyears_mod")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-5, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 6:
+```{r correlations-iteration-6, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-6, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "co007_")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-6, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 7:
+```{r correlations-iteration-7, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-7, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "grossmotor")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-7, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 8:
+```{r correlations-iteration-8, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-8, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "ch001_")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-8, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 9:
+```{r correlations-iteration-9, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-9, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "gender_partner")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-9, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 10:
+```{r correlations-iteration-10, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-10, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "casp")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-10, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 11:
+```{r correlations-iteration-11, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-11, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "euro9")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-11, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+#### AT THIS POINT THE ADJUSTED R^2 GOES DOWN!!!!
+
+Iteration 12:
+```{r correlations-iteration-12, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-12, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "sp003_3_mod")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-12, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+
+Iteration 13:
+```{r correlations-iteration-13, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-13, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "female")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-13, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 14:
+```{r correlations-iteration-14, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-14, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "ep013_mod")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-14, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 15:
+```{r correlations-iteration-15, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-15, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "sp003_2_mod")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-15, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
