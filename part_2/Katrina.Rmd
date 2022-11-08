@@ -34,10 +34,22 @@ df <- dat_country_35[dat_country_35$wave == 4,]
 
 df[df < 0 ] <- NA
 
+colSums(is.na(df))
 
-df_remove_na_columns <- df[,!(names(df) %in% c( "coupleid", 
+# removing variables we don't want or have too many NAs
+df_remove_na_columns <- df[,!(names(df) %in% c( "mergeid", "hhid", "wave", "wavepart", "int_version", "int_year", "int_month", "country", "country_mod", "language", 
+                                                "birth_country", "citizenship", "mar_stat", "partnerinhh", 
+                                                "ch001_", "sp002_mod", "adlwa", "iadla", "bmi2", 
+                                                "co007_", "thinc_m",
+                                                
+                                                "dn002_mod", "dn003_mod", "dn004_mod",
+                                                
+                                                "euro1", "euro2", "euro3", "euro4", "euro6", "euro7", "euro8", 
+                                                "euro9", "euro10", "euro11", "euro12", 
+                                                "coupleid", "iv009_mod",
                                                 "books_age10", "maths_age10", "language_age10", 
                                                "vaccinated", "childhood_health", "q34_re",
+                                               "ch021_mod", "ch007_hh", "maxgrip",
                                                "int_partner", "age_partner", "gender_partner", "mother_alive", "father_alive", "siblings_alive",
                                                "sp003_1_mod", "sp003_2_mod",  "sp009_3_mod", "sp003_3_mod", "sp009_1_mod", "sp009_2_mod", "sp008_",
                                                "bfi10_extra_mod", "bfi10_agree_mod", "bfi10_consc_mod", "bfi10_neuro_mod", "bfi10_open_mod", 
@@ -45,16 +57,44 @@ df_remove_na_columns <- df[,!(names(df) %in% c( "coupleid",
                                                "income_pct_w1","income_pct_w2", "income_pct_w5", "income_pct_w6","income_pct_w7","income_pct_w8"))]
 
 
-# adding all the euro columns (1-10) but taking NA as 0? so they add together and the row doesnt have all NA if only one NA present in 1-10
-# df_remove_na_columns[df_remove_na_columns$euro1 == NA] <- 0
-  
-  
+
+# now remove the ones that are part of cognitive score
+df_remove_na_columns <- df_remove_na_columns[,!(names(df_remove_na_columns) %in% c( "numeracy_1", "numeracy_2", "orienti", "recall_1", "recall_2"))]
+
 colSums(is.na(df_remove_na_columns))
 
-ncol(df_remove_na_columns %>% drop_na())
+# count number of usable rows
+nrow(df_remove_na_columns %>% drop_na())
+
+ncol(df_remove_na_columns)
 ```
 
-
+female
+age
+isced1997_r
+eduyears_mod
+hhsize
+ch007_km
+sphus
+chronic_mod
+casp
+euro5
+eurod
+hc002_mod
+hc012_
+hc029_
+adla
+iadlza
+mobilityind
+lgmuscle
+grossmotor
+finemotor
+bmi
+smoking
+ever_smoked
+br010_mod
+br015_
+income_pct_w4
 
 
 ## Cognitive score
