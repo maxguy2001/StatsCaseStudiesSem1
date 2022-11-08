@@ -6,14 +6,29 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(knitr.duplicate.label = "allow")
 ```
 
+```{r load-data, echo = FALSE}
+load("data/easySHARE_rel8_0_0.rda")
+dat<-easySHARE_rel8_0_0
+```
 
-```{r packs, message = FALSE}
+```{r packs, message = FALSE, echo = FALSE}
 library(tidyverse)
 library(gridExtra)
 library(countrycode)
 ```
+
+```{r Model, knit_child='making_model/model_construction.Rmd', eval=TRUE}
+```
+
+```{r Female_Model, knit_child='making_model/female_model_contruction.Rmd', eval=TRUE}
+```
+
+```{r Male_Model, knit_child='making_model/male_model_construction.Rmd', eval=TRUE}
+```
+
 
 # Main Report
 
@@ -33,18 +48,41 @@ In order to begin our analysis, we chose to work with a subset of the data cover
 
 During the data cleaning process, we found columns with a large number of “NA” values so decided that any column containing more than 15% “NA” should be removed. This resulted in removing 23 columns. Further data cleaning had us remove "year", "wave number",  "mergeid",  "hhid", and "coupleid".
 
+```{r sorting-df, echo = FALSE}
+dat[dat < 0] <- NA
+
+data_countries <- dat[dat$country %in% c(15, 16, 23, 35), ]
+
+data_full <- data_countries[data_countries$wave %in% c(6), ]
+```
+
+```{r echo = FALSE}
+variables <- length(data_full)
+observations <- nrow(data_full)
+```
+
 
 We then started a very high level analysis on our subset od data and looked at summary statistics. 
 The first thing we noted of importance was the vast number of variables and observations, in total there are 84 variables, and 18,769 observations. 
 
 As we wanted to focus on the factors associating to bmi, we looked at a density plot and found that the data roughly followed a normal distribution, this showed our dependent variable wasn’t skewed and was unimodal (mode between 20-30). 
 
+```{r initial-bmi-plot, fig.width=3,fig.height=3, echo = FALSE}
+data_full %>%
+  ggplot(aes(x=bmi)) +
+  geom_density(fill = "#69b3a2")
+```
+
 We also explored the difference in BMI between males and females. This plot showed that males have a BMI much more concentrated around their mean, however females have a wider spread of BMI values. Something which may be of significance in our linear model.
+
+```{r female-vs-male, fig.width=4,fig.height=4, echo = FALSE}
+data_full %>%
+  ggplot(aes(x = bmi, color = as.factor(female))) +
+  geom_density(adjust = 1.5, alpha = 0.4) 
+```
 
 
 We decided to take a generative approach to building our model (see Appendix B) where we correlated all the variables not yet in our model individually against bmi and added the most suitable variable to the model. We then evaluated this new model and evaluated the place of the new variable in the model using F-tests and by looking at p-values. If we concluded that the new variable was a good addition to the model, we would repeat this iterative process. The process terminates when adding new variables to the model no longer improves the model. This was determined by the R^2 value and when adding new variables was no longer significant.
-
-
 
 Some interesting anomalies we encountered while building the model:
 When adding the "sphus" variable to the model, it failed our statistical tests (p-value = 0.66), so it was discarded from the model. We noticed high correlations between this variable and others already in the model which may explain the high p-value.
@@ -52,12 +90,29 @@ Adding "sp00_3_3_mod" to the model resulted in a spike in r^2 to 0.2043 however 
 At iteration 13, we had to remove the "gender_partner" variable as the new "female" variable was performing better in the model and there is an interaction between the 2 variables so we can;t include both in our model.
 We finally decided to stop at iteration 14, as adding the next most correlated variable "sp003_2_mod" resulted in a decreased r^2 as well as increased p-values. 
 
-
 Therefore, our final r^2 value is 0.1401, represented by our final linear model:
+
+```{r importing_functionality, message = FALSE, echo=FALSE}
+source("making_model/model_functions.R")
+```
+
+```{r extracting_model, echo=FALSE}
+#Note - you will need to run "making_model/model_construction.Rmd" first!
+library(equatiomatic)
+load("model.RData")
+equatiomatic::extract_eq(model, use_coefs = TRUE, wrap = TRUE)
+```
 
 From our linear model, we found the 3 most influential variables on bmi to be "female", "mobilityind", "grossmotor". Both "grossmotor" and "female" have estimates of around -1.4 meaning they reduce "bmi", in essence this means that being female results in a lower bmi than being male - which can be seen in our initial analysis. However, unexpectedly this suggests that finding motor activities easier results in a higher "bmi". Then "mobilityind" had the biggest positive effect on "bmi", meaning the less mobile someone is, the higher their "bmi". These are unexpected results as "mobilityind" and "grossmotor" are very similar variables, so we would expect them to have similar effects on bmi. 
 
 Finally, we tested the assumptions of our model by creating these plots, and making the following conclusions:
+
+```{r echo=FALSE}
+load("model.RData")
+par(mfrow=c(2,2))
+plot(model)
+```
+
 
 Residuals vs Fitted:
 The residuals "bounce randomly" around the residuals = 0 line, suggesting that the assumption that the relationship is linear is reasonable. They also roughly form a horizontal band around this line, suggesting that the variances of the error terms are equal. Finally, no residuals stand out from the basic random pattern, suggesting that there are no outliers.
@@ -81,19 +136,8 @@ There is a notable difference in the adjusted R^2 values of the models with the 
 
 Overall, although we have constructed a linear model, we have little confidence in the conclusions it produces. The unexpected conclusions around "grossmotor" and "mobilityind" adds to our reduced confidence. The main reason for this is the low r^2 value, which suggests our variables in the model only explains 14% of the variability in bmi. 
 
-```{r importing_functionality, message = FALSE}
-source("making_model/model_functions.R")
-```
 
-```{r extracting_model, echo=FALSE}
-#Note - you will need to run "making_model/modelconstruction.Rmd" first!
-library(equatiomatic)
-extract_eq(model, use_coeffs = TRUE)
-```
-
-# Exectuive Summary
-
-Introduction
+# Executive Summary
 
 The investigation we carried out was based on the easySHARE dataset which was collected over many years, based mostly in Europe, where individuals, couples, and households filled out questionnaires about all aspects of life. From this data, we investigated the factors which are associated with bmi and if certain risk factors are the same for both male and female.  We took a subset of this data to focus on and from this drew conclusions about it.
 
@@ -105,19 +149,35 @@ In conclusion, although gender and mobility seemed to have an effect on bmi we c
 
 
 ## Appendix A - quality_check.R
+
+```{r code=readLines("quality_check.R"), eval=FALSE, echo=TRUE}
+
+```
 ## Appendix B - model_functions.R
 
+```{r code=readLines("making_model/model_functions.R"), eval=FALSE, echo=TRUE}
+
+```
 
 ## Appendix C
 List of reasons for missing data
 - 3: “implausible value/suspected wrong”
+
 - 7: “not yet coded”
+
 - 9:  “not applicable filtered”
+
 - 10:  “SHARELIFE interview” (only in wave 7)
+
 - 11:  “regular interview” (only in wave 7)
+
 - 12:  “don’t know / refusal”
+
 - 13:  “not asked in this wave”
+
 - 14:  “not asked in this country”
+
 - 15:  “no information”
+
 - 16:  “no drop-off (information in drop-off in this wave)”
 
