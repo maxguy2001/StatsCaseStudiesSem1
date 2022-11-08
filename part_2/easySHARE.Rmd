@@ -6,7 +6,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-setwd("~/Teach/Statistical Case Studies (MATH10102)/2223/project")
+setwd('..')
+knitr::opts_knit$set(root.dir= getwd())
 ```
 
 ## Load data
@@ -14,7 +15,7 @@ setwd("~/Teach/Statistical Case Studies (MATH10102)/2223/project")
 Load the easySHARE data. For information on data and variables, see the [easySHARE data  guide](http://www.share-project.org/fileadmin/pdf_documentation/easySHARE_Release_8.0.0_ReleaseGuide.pdf).
 
 ```{r easyshare}
-load("easySHARE_rel8_0_0.rda")
+load("data/easySHARE_rel8_0_0.rda")
 dat<-easySHARE_rel8_0_0
 ```
 
