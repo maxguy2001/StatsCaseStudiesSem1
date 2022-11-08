@@ -1,0 +1,435 @@
+---
+title: "Building model using generative approach"
+author: "us"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+#setup stuff, can ignore
+setwd('..')
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir= getwd())
+```
+
+
+```{r import_funcs, include=FALSE}
+#import functions file
+source("making_model/model_functions.R")
+```
+
+
+```{r load_data, include=FALSE}
+#load data into environment
+data_path <- paste(getwd(), "/data/easySHARE_rel8_0_0.rda", sep = "")
+load(data_path)
+df <- data.frame(easySHARE_rel8_0_0)
+rm(easySHARE_rel8_0_0)
+```
+
+
+```{r initialise_search, include=FALSE}
+#initialise everything we need to use such as logger and necessary vectors (takes a while)
+initialiseSearch(df)
+```
+
+Example iteration:
+
+```{r correlations-iteration-1, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-1, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "chronic_mod")
+
+#make linear model
+makeModel(df_model)
+s
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-1, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+
+Iteration 2:
+```{r correlations-iteration-2, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-2, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "lgmuscle")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-2, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 3:
+```{r correlations-iteration-3, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-3, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "mobilityind")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-3, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 4:
+```{r correlations-iteration-4, include=FALSE}
+#find most highly correlated column
+#corrs <- findMaxCorr(df_all, df_model, iternum)
+#printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-4, include=FALSE}
+#swich highly correlated column to model dataframe
+#switchColumnToModel(df_all, df_model, "sphus")
+
+#make linear model
+#makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+#model_summary <- evaluateModel()
+#model_summary
+```
+
+
+```{r make-model-4, include=FALSE}
+#show improvement over last iteration
+#model_improvement <- quantifyImprovements()
+#model_improvement
+```
+
+At this point, sphus didn't add much to the r^2 value, and had a p value of 0.66 so we decided not to include this value and look at the next variable. This variable is a measure of perceived health which has a correlation with chronic_mod of 0.4139 and therefore is captured using that variable. As well as a correlation of 0.5088 with lgmuscle and 0.5142 with mobilityind. 
+
+Iteration 5:
+```{r correlations-iteration-5, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-5, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "eduyears_mod")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-5, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 6:
+```{r correlations-iteration-6, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-6, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "co007_")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-6, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 7:
+```{r correlations-iteration-7, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-7, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "grossmotor")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-7, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 8:
+```{r correlations-iteration-8, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-8, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "ch001_")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-8, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 9:
+```{r correlations-iteration-9, include=FALSE}
+#find most highly correlated column
+#corrs <- findMaxCorr(df_all, df_model, iternum)
+#printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-9, include=FALSE}
+#swich highly correlated column to model dataframe
+#switchColumnToModel(df_all, df_model, "gender_partner")
+
+#make linear model
+#makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+#model_summary <- evaluateModel()
+#model_summary
+```
+
+
+```{r make-model-9, include=FALSE}
+#show improvement over last iteration
+#model_improvement <- quantifyImprovements()
+#model_improvement
+```
+
+Iteration 10:
+```{r correlations-iteration-10, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-10, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "casp")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-10, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Iteration 11:
+```{r correlations-iteration-11, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-11, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "euro9")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-11, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+``` 
+
+
+KEEP 11 
+Here we have euro9 with a p-value of 0.2239 and only changing the r^2 by 0.0011 therefore we have decided not to use this variable. This variable is describing... We also looked at the correlation of this with chronic mod = 0.2267, lgmuscle = 0.3648, mobilityind = 0.3425, and grossmotor = 0.2951. These are all fairly high so we beleive leaving this out of our model is fine, as the other variables will account for this.
+
+#### AT THIS POINT WE STOP?
+
+Iteration 12:
+```{r correlations-iteration-12, include=FALSE}
+#find most highly correlated column
+#corrs <- findMaxCorr(df_all, df_model, iternum)
+#printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-12, include=FALSE}
+#swich highly correlated column to model dataframe
+#switchColumnToModel(df_all, df_model, "sp003_3_mod")
+
+#make linear model
+#makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+#model_summary <- evaluateModel()
+#model_summary
+```
+
+
+```{r make-model-12, include=FALSE}
+#show improvement over last iteration
+#model_improvement <- quantifyImprovements()
+#model_improvement
+```
+
+GET RID OF THIS BECAUSE IT ONLY USES 93 ROWS DUE TO NAs. 
+Although adding this next variable in making the r^2 go up to 0.2043, the p-values for each variable (except casp) are too high (all above 0.05). Therefore we have decided to stop our model at this point and make a trade off between keeping variable p-values low and getting a high r^2 value. 
+
+
+
+Iteration 13:
+```{r correlations-iteration-13, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 5)
+```
+
+```{r make-model-13, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "female")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-12, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+#model_improvement
+```
+
+Iteration 14:
+```{r correlations-iteration-14, include=FALSE}
+#find most highly correlated column
+corrs <- findMaxCorr(df_all, df_model, iternum)
+printNBestCorrelations(corrs, 8)
+```
+
+```{r make-model-14, include=FALSE}
+#swich highly correlated column to model dataframe
+switchColumnToModel(df_all, df_model, "ep013_mod")
+
+#make linear model
+makeModel(df_model)
+
+#show summary of linear model. You can add pplots  to function if you want?
+model_summary <- evaluateModel()
+model_summary
+```
+
+
+```{r make-model-14, include=FALSE}
+#show improvement over last iteration
+model_improvement <- quantifyImprovements()
+model_improvement
+```
+
+Our final r^2 value is therefore 0.1401
+
+Our final linear model is
+```{r}
+summary(model)
+```
+
+```{r check-model}
+par(mfrow=c(2,2))
+plot(model)
+```
+
+
+Residual vs Fitted: 
+The residuals "bounce randomly" around the residuals = 0 line, suggesting that the assumption that the relationship is linear is reasonable.In addition, the residuals roughly form a horizontal band around the residuals = 0 line, which suggests that the variances of the error terms are equal. Finally, no single residual stands out from the basic random pattern of residuals, suggesting that there are no outliers.
+
+Normal Q-Q plot: From this plot we can assume normality since all points approximately fall along the reference line. However you can see this isn't as true for those in the higher quantile, but roughly speaking it is true. 
+
+Scale-Location: The red line is approximately horizontal so the average magnitude of the standardized residuals isn't changing much across all fitted values and the spread around the red line also doesn't vary much across the fitted values so the variability is pretty constant. 
+
+Residuals vs Leverage:
+This plot helps us to find influential cases, if there are any. We watch out for outlying values at the upper right corner or at the lower right corner. Those spots are the places where cases can be influential against a regression line. Since the majority of our points have low leverage they have a weak influence on the coefficients in the regression model. 
