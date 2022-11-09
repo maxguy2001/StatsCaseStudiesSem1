@@ -27,76 +27,6 @@ library(gridExtra)
 
 ## Pre-processing
 
-```{r}
-dat_country_35 <- dat[dat$country == 35,]
-
-df <- dat_country_35[dat_country_35$wave == 4,]
-
-df[df < 0 ] <- NA
-
-colSums(is.na(df))
-
-# removing variables we don't want or have too many NAs
-df_remove_na_columns <- df[,!(names(df) %in% c( "mergeid", "hhid", "wave", "wavepart", "int_version", "int_year", "int_month", "country", "country_mod", "language", 
-                                                "birth_country", "citizenship", "mar_stat", "partnerinhh", 
-                                                "ch001_", "sp002_mod", "adlwa", "iadla", "bmi2", 
-                                                "co007_", "thinc_m",
-                                                
-                                                "dn002_mod", "dn003_mod", "dn004_mod",
-                                                
-                                                "euro1", "euro2", "euro3", "euro4", "euro6", "euro7", "euro8", 
-                                                "euro9", "euro10", "euro11", "euro12", 
-                                                "coupleid", "iv009_mod",
-                                                "books_age10", "maths_age10", "language_age10", 
-                                               "vaccinated", "childhood_health", "q34_re",
-                                               "ch021_mod", "ch007_hh", "maxgrip",
-                                               "int_partner", "age_partner", "gender_partner", "mother_alive", "father_alive", "siblings_alive",
-                                               "sp003_1_mod", "sp003_2_mod",  "sp009_3_mod", "sp003_3_mod", "sp009_1_mod", "sp009_2_mod", "sp008_",
-                                               "bfi10_extra_mod", "bfi10_agree_mod", "bfi10_consc_mod", "bfi10_neuro_mod", "bfi10_open_mod", 
-                                               "ep005_", "ep009_mod", "ep011_mod", "ep013_mod", "ep026_mod", "ep036_mod",
-                                               "income_pct_w1","income_pct_w2", "income_pct_w5", "income_pct_w6","income_pct_w7","income_pct_w8"))]
-
-
-
-# now remove the ones that are part of cognitive score
-df_remove_na_columns <- df_remove_na_columns[,!(names(df_remove_na_columns) %in% c( "numeracy_1", "numeracy_2", "orienti", "recall_1", "recall_2"))]
-
-colSums(is.na(df_remove_na_columns))
-
-# count number of usable rows
-nrow(df_remove_na_columns %>% drop_na())
-
-ncol(df_remove_na_columns)
-```
-
-female
-age
-isced1997_r
-eduyears_mod
-hhsize
-ch007_km
-sphus
-chronic_mod
-casp
-euro5
-eurod
-hc002_mod
-hc012_
-hc029_
-adla
-iadlza
-mobilityind
-lgmuscle
-grossmotor
-finemotor
-bmi
-smoking
-ever_smoked
-br010_mod
-br015_
-income_pct_w4
-
-
 ## Cognitive score
 
 EasySHARE does not record diagnosis of dementia (e.g. Alzheimer's disease) in all waves. Instead, we will create a composite cognitive score as a proxy for dementia severity, following [Crimmins et al. (2011)](https://pubmed.ncbi.nlm.nih.gov/21743047/). The cognitive function indices are described in pg. 23 of the easySHARE data guide.
@@ -149,9 +79,122 @@ ggplot() +
 dat$cogscore<-cog$cogscore
 ```
 
+
 ## Dementia risk factors
 
 Extract variables related to modifiable risk factors identified in literature: education, hearing loss, traumatic brain injury, hypertension, alcohol consumption, smoking, obesity, physical activity, depression, social isolation, diabetes, and air pollution [Livingston et al. (2020)](https://www.thelancet.com/article/S0140-6736(20)30367-6/fulltext). Refer to the easySHARE guide for a description of the variables availble. You may also consider other relevant risk factors, along with an explanation and motivation. Gender and age are also relevant variables to consider, e.g. to explore differences between men and women [Beam et al. (2018)](https://pubmed.ncbi.nlm.nih.gov/30010124/).
 
 
+```{r}
+dat_country_35 <- dat[dat$country == 35,]
+
+df <- dat_country_35[dat_country_35$wave == 4,]
+
+df[df < 0 ] <- NA
+
+#colSums(is.na(df))
+
+# removing variables we don't want or have too many NAs
+df_remove_na_columns <- df[,!(names(df) %in% c( "mergeid", "hhid", "wave", "wavepart", "int_version", "int_year", "int_month", "country", "country_mod", "language", 
+                                                "birth_country", "citizenship", "mar_stat", "partnerinhh", 
+                                                "ch001_", "sp002_mod", "adlwa", "iadla", "bmi2", 
+                                                "co007_", "thinc_m",
+                                                
+                                                "dn002_mod", "dn003_mod", "dn004_mod",
+                                                
+                                                "euro1", "euro2", "euro3", "euro4", "euro6", "euro7", "euro8", 
+                                                "euro9", "euro10", "euro11", "euro12", 
+                                                "coupleid", "iv009_mod",
+                                                "books_age10", "maths_age10", "language_age10", 
+                                               "vaccinated", "childhood_health", "q34_re",
+                                               "ch021_mod", "ch007_hh", "maxgrip",
+                                               "int_partner", "age_partner", "gender_partner", "mother_alive", "father_alive", "siblings_alive",
+                                               "sp003_1_mod", "sp003_2_mod",  "sp009_3_mod", "sp003_3_mod", "sp009_1_mod", "sp009_2_mod", "sp008_",
+                                               "bfi10_extra_mod", "bfi10_agree_mod", "bfi10_consc_mod", "bfi10_neuro_mod", "bfi10_open_mod", 
+                                               "ep005_", "ep009_mod", "ep011_mod", "ep013_mod", "ep026_mod", "ep036_mod",
+                                               "income_pct_w1","income_pct_w2", "income_pct_w5", "income_pct_w6","income_pct_w7","income_pct_w8"))]
+
+# now remove the ones that are part of cognitive score
+df_remove_na_columns <- df_remove_na_columns[,!(names(df_remove_na_columns) %in% c( "numeracy_1", "numeracy_2", "orienti", "recall_1", "recall_2"))]
+
+colSums(is.na(df_remove_na_columns))
+
+# count number of usable rows
+nrow(df_remove_na_columns %>% drop_na())
+
+ncol(df_remove_na_columns)
+
+```
+
+female
+age
+isced1997_r
+eduyears_mod
+hhsize
+ch007_km
+sphus
+chronic_mod
+casp
+euro5
+eurod
+hc002_mod
+hc012_
+hc029_
+adla
+iadlza
+mobilityind
+lgmuscle
+grossmotor
+finemotor
+bmi
+smoking
+ever_smoked
+br010_mod
+br015_
+income_pct_w4
+
+## Creating a model
+
+3 different ways, all the same answer:
+1. using step() which automatically sorts it
+2. looking at summary and systematically removing each variable 
+3. using step() but forward selection
+
+All end up with same 14 predictors, but step 2. removes two extra which have 0.05 < p-values < 0.1
+
+```{r}
+df_final <- na.omit(df_remove_na_columns)
+```
+
+
+```{r}
+lm1 <- lm(cogscore ~., data = df_final )
+
+# through automatic backward selection this selects a model where it systematically drops a variable each time until the p-values are < 0.1
+
+slm1 <- step(lm1)
+summary(slm1)
+
+# this process did the same as above, but removing ever_smoked and income_pct_w4 so all p-values < 0.05
+df_lm <- df_final
+
+summary(lm(cogscore ~ .-mobilityind - finemotor - adla - br010_mod - hhsize - lgmuscle - hc012_ - ch007_km - grossmotor- hc029_ - smoking - hc002_mod - ever_smoked - income_pct_w4, data = df_lm))
+
+```
+
+```{r}
+# forward selection
+all <- lm(cogscore ~., data = df_final )
+
+intercept_only_lm <- lm(cogscore~1, data = df_final)
+
+forward <- step(intercept_only_lm, direction = 'forward', scope = formula(all), trace = 0)
+forward$anova
+
+forward$coefficients
+
+summary(forward)
+```
+Intercept only model has AIC 14623.17.
+The model that produced the lowest AIC and also had a statistically significant reduction in AIC compared to the intercept only model used the predictor age, AIC of 13570.99. We kept this process going until we ended up with a model with 14 predictor variables and an intercept, which gave an AIC of 12437.52
 
