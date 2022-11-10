@@ -123,7 +123,6 @@ colSums(is.na(df_remove_na_columns))
 nrow(df_remove_na_columns %>% drop_na())
 
 ncol(df_remove_na_columns)
-
 ```
 
 female
@@ -164,11 +163,30 @@ All end up with same 14 predictors, but step 2. removes two extra which have 0.0
 
 ```{r}
 df_final <- na.omit(df_remove_na_columns)
+
+df_final$ch007_km[df_final$ch007_km == 5] <- 0
+df_final$hc012_[df_final$hc012_ == 5] <- 0
+df_final$hc029_[df_final$hc029_ == 5] <- 0
+df_final$hc029_[df_final$hc029_ == 3] <- 1
+
+
+```
+
+```{r}
+set.seed(567)
+
+train_index <- sample(1:nrow(df_final), size =200)
+
+df_test <- df_final[train_index, ]
+df_train <- df_final[-train_index,]
+
+#check there is no intercept
+dplyr::intersect(df_train, df_test) 
 ```
 
 
 ```{r}
-lm1 <- lm(cogscore ~., data = df_final )
+lm1 <- lm(cogscore ~., data = df_train )
 
 # through automatic backward selection this selects a model where it systematically drops a variable each time until the p-values are < 0.1
 
@@ -176,25 +194,94 @@ slm1 <- step(lm1)
 summary(slm1)
 
 # this process did the same as above, but removing ever_smoked and income_pct_w4 so all p-values < 0.05
-df_lm <- df_final
+df_lm <- df_train
 
-summary(lm(cogscore ~ .-mobilityind - finemotor - adla - br010_mod - hhsize - lgmuscle - hc012_ - ch007_km - grossmotor- hc029_ - smoking - hc002_mod - ever_smoked - income_pct_w4, data = df_lm))
+#summary(lm(cogscore ~ .-hc029_ -br010_mod - ever_smoked - mobilityind - eduyears_mod - lgmuscle - chronic_mod - sphus - finemotor - eurod - smoking - adla - grossmotor - br015_ - income_pct_w4 - hc002_mod - ch007_km, data = df_lm))
 
+```
+
+```{r forward selection}
+# intercept only model
+
+intercept_only <- lm(cogscore ~ 1, data = df_train)
+all <- lm(cogscore ~ ., data = df_train)
+
+forward <- step(intercept_only, direction='forward', scope=formula(all), trace=0)
+
+backward <- step(all, direction='backward', scope=formula(all), trace=0)
+
+both <- step(intercept_only, direction='both', scope=formula(all), trace=0)
+
+backward$coefficients
+forward$coefficients
+both$coefficients
+
+summary(forward)
+
+```
+
+Note backwards produces different model
+```{r}
+ggplot(df_train, aes(x = - age + isced1997_r - iadlza - eurod + female - br015_ + eduyears_mod + euro5 - sphus + chronic_mod + casp + bmi - ever_smoked, y = cogscore)) +
+  geom_point() +
+  stat_smooth()
 ```
 
 ```{r}
-# forward selection
-all <- lm(cogscore ~., data = df_final )
+# residual sum of squares 
+RSS <- c(crossprod(forward$residuals))
 
-intercept_only_lm <- lm(cogscore~1, data = df_final)
+# mean square error
+MSE <- RSS/length(forward$residuals)
 
-forward <- step(intercept_only_lm, direction = 'forward', scope = formula(all), trace = 0)
-forward$anova
+# root mean sqaure error
+RMSE <- sqrt(MSE)
 
-forward$coefficients
-
-summary(forward)
+sqrt(mean(forward$residuals^2))
 ```
-Intercept only model has AIC 14623.17.
-The model that produced the lowest AIC and also had a statistically significant reduction in AIC compared to the intercept only model used the predictor age, AIC of 13570.99. We kept this process going until we ended up with a model with 14 predictor variables and an intercept, which gave an AIC of 12437.52
+Low RMSE is good 
+
+# Validation
+```{r sorting-dataframes}
+
+df_train_validation <- df_train[, names(df_train) %in% variables]
+df_test_validation <- df_test[, names(df_test) %in% variables]
+
+variables <- c("age","isced1997_r", "iadlza", "eurod",  "female" , "br015_" , "eduyears_mod" , "euro5" , "sphus" , "chronic_mod" , "casp" , "bmi" , "ever_smoked", "cogscore")
+
+dat_country_28 <- dat[dat$country == 28,]
+df_w4_c28 <- dat_country_28[dat_country_28$wave == 4,]
+
+df_w6_c35 <- dat_country_35[dat_country_35$wave == 6,]
+
+df_w6_c35[df_w6_c35 < 0 ] <- NA
+df_w4_c28[df_w4_c28 < 0 ] <- NA
+
+df_w6_c35 <- df_w6_c35[, names(df_w6_c35) %in% variables]
+df_w4_c28 <- df_w4_c28[, names(df_w4_c28) %in% variables]
+
+# count unusable rows
+nrow(df_w6_c35 %>% drop_na())
+nrow(df_w4_c28 %>% drop_na())
+
+# drop unusable rows
+df_w6_c35 <- na.omit(df_w6_c35)
+df_w4_c28 <- na.omit(df_w4_c28)
+
+```
+
+
+```{r validation}
+
+```
+
+
+
+
+
+
+
+
+
+
 
