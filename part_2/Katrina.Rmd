@@ -32,6 +32,7 @@ library(gridExtra)
 EasySHARE does not record diagnosis of dementia (e.g. Alzheimer's disease) in all waves. Instead, we will create a composite cognitive score as a proxy for dementia severity, following [Crimmins et al. (2011)](https://pubmed.ncbi.nlm.nih.gov/21743047/). The cognitive function indices are described in pg. 23 of the easySHARE data guide.
 
 ```{r cogindices, message = FALSE, fig.height=3, fig.width=9}
+
 cogvars <- c("recall_1", "recall_2", "orienti", "numeracy_1", "numeracy_2")
 cog = dat[cogvars]
 p1 = ggplot() +
@@ -97,7 +98,7 @@ df[df < 0 ] <- NA
 # removing variables we don't want or have too many NAs
 df_remove_na_columns <- df[,!(names(df) %in% c( "mergeid", "hhid", "wave", "wavepart", "int_version", "int_year", "int_month", "country", "country_mod", "language", 
                                                 "birth_country", "citizenship", "mar_stat", "partnerinhh", 
-                                                "ch001_", "sp002_mod", "adlwa", "iadla", "bmi2", 
+                                                "ch001_", "ch007_km", "casp", "sp002_mod", "adlwa", "iadla", "bmi2", 
                                                 "co007_", "thinc_m",
                                                 
                                                 "dn002_mod", "dn003_mod", "dn004_mod",
@@ -112,7 +113,7 @@ df_remove_na_columns <- df[,!(names(df) %in% c( "mergeid", "hhid", "wave", "wave
                                                "sp003_1_mod", "sp003_2_mod",  "sp009_3_mod", "sp003_3_mod", "sp009_1_mod", "sp009_2_mod", "sp008_",
                                                "bfi10_extra_mod", "bfi10_agree_mod", "bfi10_consc_mod", "bfi10_neuro_mod", "bfi10_open_mod", 
                                                "ep005_", "ep009_mod", "ep011_mod", "ep013_mod", "ep026_mod", "ep036_mod",
-                                               "income_pct_w1","income_pct_w2", "income_pct_w5", "income_pct_w6","income_pct_w7","income_pct_w8"))]
+                                               "income_pct_w1","income_pct_w2", "income_pct_w4","income_pct_w5", "income_pct_w6","income_pct_w7","income_pct_w8"))]
 
 # now remove the ones that are part of cognitive score
 df_remove_na_columns <- df_remove_na_columns[,!(names(df_remove_na_columns) %in% c( "numeracy_1", "numeracy_2", "orienti", "recall_1", "recall_2"))]
@@ -123,6 +124,18 @@ colSums(is.na(df_remove_na_columns))
 nrow(df_remove_na_columns %>% drop_na())
 
 ncol(df_remove_na_columns)
+
+df_remove_na_columns$diabetes <- df_remove_na_columns$chronic_mod
+df_remove_na_columns$hypertension <- df_remove_na_columns$chronic_mod
+
+# adding hypertension and diabetes to the variables
+df_remove_na_columns$diabetes[df_remove_na_columns$diabetes != 5] <- 0
+df_remove_na_columns$diabetes[df_remove_na_columns$diabetes == 5] <- 1
+df_remove_na_columns$hypertension[df_remove_na_columns$hypertension != 2] <- 0
+df_remove_na_columns$hypertension[df_remove_na_columns$hypertension == 2] <- 1
+
+# remove chronic_mod as only interested in diabetes and hypertension
+df_remove_na_columns <- df_remove_na_columns[,!(names(df_remove_na_columns)) %in% c("chronic_mod")] 
 ```
 
 female
@@ -152,6 +165,7 @@ br010_mod
 br015_
 income_pct_w4
 
+
 ## Creating a model
 
 3 different ways, all the same answer:
@@ -164,7 +178,6 @@ All end up with same 14 predictors, but step 2. removes two extra which have 0.0
 ```{r}
 df_final <- na.omit(df_remove_na_columns)
 
-df_final$ch007_km[df_final$ch007_km == 5] <- 0
 df_final$hc012_[df_final$hc012_ == 5] <- 0
 df_final$hc029_[df_final$hc029_ == 5] <- 0
 df_final$hc029_[df_final$hc029_ == 3] <- 1
@@ -184,45 +197,29 @@ df_train <- df_final[-train_index,]
 dplyr::intersect(df_train, df_test) 
 ```
 
-
 ```{r}
-lm1 <- lm(cogscore ~., data = df_train )
+# step by step removal 
 
-# through automatic backward selection this selects a model where it systematically drops a variable each time until the p-values are < 0.1
+#summary(lm(cogscore ~ ., data = df_train))
+#summary(lm(cogscore ~ . - finemotor - br010_mod - grossmotor - hc029_ - hypertension - hhsize - mobilityind - adla - lgmuscle - hc012_ - diabetes, data = df_train))
 
-slm1 <- step(lm1)
-summary(slm1)
+# now looking to see if removing smoking improves r^2 from 0.3673 - doesn't, decreases to 3.67
+#summary(lm(cogscore ~ . - finemotor - br010_mod - grossmotor - hc029_ - hypertension - hhsize - mobilityind - adla - lgmuscle - hc012_ - diabetes - smoking, data = df_train))
 
-# this process did the same as above, but removing ever_smoked and income_pct_w4 so all p-values < 0.05
-df_lm <- df_train
+# now looking to see if removing bmi improves r^2 from 0.3673 - doesn't, decreases to 3.67
+#summary(lm(cogscore ~ . - finemotor - br010_mod - grossmotor - hc029_ - hypertension - hhsize - mobilityind - adla - lgmuscle - hc012_ - diabetes - bmi , data = df_train))
 
-#summary(lm(cogscore ~ .-hc029_ -br010_mod - ever_smoked - mobilityind - eduyears_mod - lgmuscle - chronic_mod - sphus - finemotor - eurod - smoking - adla - grossmotor - br015_ - income_pct_w4 - hc002_mod - ch007_km, data = df_lm))
+#keep both in, and this is the final model
 
+summary(lm(cogscore ~ . - finemotor - br010_mod - grossmotor - hc029_ - hypertension - hhsize - mobilityind - adla - lgmuscle - hc012_ - diabetes, data = df_train))
 ```
 
-```{r forward selection}
-# intercept only model
 
-intercept_only <- lm(cogscore ~ 1, data = df_train)
-all <- lm(cogscore ~ ., data = df_train)
-
-forward <- step(intercept_only, direction='forward', scope=formula(all), trace=0)
-
-backward <- step(all, direction='backward', scope=formula(all), trace=0)
-
-both <- step(intercept_only, direction='both', scope=formula(all), trace=0)
-
-backward$coefficients
-forward$coefficients
-both$coefficients
-
-summary(forward)
-
-```
 
 Note backwards produces different model
 ```{r}
-ggplot(df_train, aes(x = - age + isced1997_r - iadlza - eurod + female - br015_ + eduyears_mod + euro5 - sphus + chronic_mod + casp + bmi - ever_smoked, y = cogscore)) +
+#formula(lm)
+ggplot(df_train, aes(x = female - 0.12* age + 0.65*isced1997_r + 0.15*eduyears_mod - 0.23*sphus + 0.48*euro5 - 0.28*eurod + 0.011*hc002_mod + 0.015*bmi + 0.060*smoking - 0.085*ever_smoked - 0.17*br015_ , y = cogscore)) +
   geom_point() +
   stat_smooth()
 ```
@@ -237,17 +234,17 @@ MSE <- RSS/length(forward$residuals)
 # root mean sqaure error
 RMSE <- sqrt(MSE)
 
-sqrt(mean(forward$residuals^2))
+print(RMSE)
 ```
 Low RMSE is good 
 
 # Validation
 ```{r sorting-dataframes}
 
+variables <- c("age","isced1997_r", "iadlza", "eurod",  "female" , "br015_" , "eduyears_mod" , "euro5" , "sphus" , "chronic_mod" , "casp" , "bmi" , "ever_smoked", "cogscore")
+
 df_train_validation <- df_train[, names(df_train) %in% variables]
 df_test_validation <- df_test[, names(df_test) %in% variables]
-
-variables <- c("age","isced1997_r", "iadlza", "eurod",  "female" , "br015_" , "eduyears_mod" , "euro5" , "sphus" , "chronic_mod" , "casp" , "bmi" , "ever_smoked", "cogscore")
 
 dat_country_28 <- dat[dat$country == 28,]
 df_w4_c28 <- dat_country_28[dat_country_28$wave == 4,]
