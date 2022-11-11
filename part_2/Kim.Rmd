@@ -1,0 +1,86 @@
+---
+title: "Dementia Risk Factors: EDA of easySHARE data"
+author: "Kim Johnston"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load data
+Load the easySHARE data. For information on data and variables, see the [easySHARE data  guide](http://www.share-project.org/fileadmin/pdf_documentation/easySHARE_Release_8.0.0_ReleaseGuide.pdf).
+
+```{r easyshare}
+load("../data/easySHARE_rel8_0_0.rda")
+dat<-easySHARE_rel8_0_0
+```
+
+Load packages:
+  
+```{r packs, message = FALSE}
+library(ggplot2)
+library(tidyverse)
+library(gridExtra)
+```
+
+
+Exploring data, stats:
+
+Confounding variables:
+
+```{r mother alive}
+#cor(df_final$age, df_final$mother_alive)
+boxplot(df$age ~ df$mother_alive, data = df)
+mean(df_final$age[df_final$mother_alive =="1"])
+
+df %>%
+  mean(age[mother_alive =="5"]) 
+
+```
+
+```{r father alive}
+boxplot(df$age ~ df$mother_alive, data = df)
+
+```
+
+
+
+```{r age chronic mod}
+
+df_remove_na_columns %>%
+  ggplot(aes(x=chronic_mod, y = age)) +
+  geom_point()
+
+summary(df_remove_na_columns$age)
+summary(df_remove_na_columns$age, df_remove_na_columns$chronic_mod)
+
+
+```
+
+^ age starts at 24, hence chronic mod does confound with age as the lowest chronic mod observation is 
+
+
+
+```{r histo of ages}
+dat %>%
+  ggplot(aes(x=age)) +
+  geom_histogram()
+
+```
+
+Graph showing the ammount of NAs and justifiable to be able to discuss whcih columns needed taking out.
+```{r}
+library(visdat)
+vis_dat(df)
+```
+
+
+```{r}
+a<-prop.table(xtabs(~ sphus+chronic_mod, dat),2)
+barplot(a)
+```
+
+
+
