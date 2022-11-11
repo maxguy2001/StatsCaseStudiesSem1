@@ -32,16 +32,22 @@ Confounding variables:
 
 ```{r mother alive}
 #cor(df_final$age, df_final$mother_alive)
-#boxplot(df$age ~ df$mother_alive, data = df)
-#mean(df_final$age[df_final$mother_alive =="1"])
+boxplot(df$age ~ df$mother_alive, data = df)
+mean(df_final$age[df_final$mother_alive =="1"])
 
-#df %>%
-  #mean(age[mother_alive =="5"]) 
+df %>%
+  mean(age[mother_alive =="5"]) 
+
+```
+
+```{r}
+x<-prop.table(xtabs(~ (round(age)>60) +father_alive, df),2)
+plot(x)
 
 ```
 
 ```{r father alive}
-#boxplot(df$age ~ df$mother_alive, data = df)
+boxplot(df$age ~ df$mother_alive, data = df)
 
 ```
 
@@ -49,26 +55,31 @@ Confounding variables:
 
 ```{r age chronic mod}
 
-#df_remove_na_columns %>%
-  #ggplot(aes(x=chronic_mod, y = age)) +
-  #geom_point()
+df_remove_na_columns %>%
+  ggplot(aes(x=chronic_mod, y = age)) +
+  geom_point()
 
-#summary(df_remove_na_columns$age)
-#summary(df_remove_na_columns$age, df_remove_na_columns$chronic_mod)
+y <-table(round(df_remove_na_columns$age))
+barplot(y)
 
 
 ```
 
-^ age starts at 24, hence chronic mod does confound with age as the lowest chronic mod observation is 
+```{r}
+table(round(df_remove_na_columns$age), df_remove_na_columns$chronic_mod)
 
+```
+Got this table, unsure how to extract colums for the results we were looking at. would then be able to take the mean of them to discuss.
 
 
 ```{r histo of ages}
-#dat %>%
-  #ggplot(aes(x=age)) +
-  #geom_histogram()
+dat %>%
+  ggplot(aes(x=age)) +
+  geom_histogram()
 
 ```
+^ age starts at 24, hence chronic mod does confound with age as the lowest chronic mod observation is 
+
 
 Graph showing the ammount of NAs and justifiable to be able to discuss whcih columns needed taking out.
 ```{r}
@@ -78,9 +89,44 @@ Graph showing the ammount of NAs and justifiable to be able to discuss whcih col
 
 
 ```{r}
-#a<-prop.table(xtabs(~ sphus+chronic_mod, dat),2)
-#barplot(a)
+a<-prop.table(xtabs(~ sphus+chronic_mod, dat),2)
+barplot(a)
 ```
+
+
+Looking at obesity:
+talked about this in the tut. to talk about obesity, higher percent of large BMI, the more struggle to stand up, climb several sets of stairs etc.
+```{r obesity}
+o<-prop.table(xtabs(~ bmi2+ lgmuscle, dat),2)
+barplot(o)
+barplot(o,las=2,legend.text=TRUE, main= "Percent bmi by mobility (barplot)")
+```
+
+
+This doesnt give anything interesting, just that its very mixed data
+```{r age bmi}
+ggplot(dat, aes(bmi,age,color=female)) + geom_point() + stat_smooth(method="lm")
+```
+
+
+```{r combining lgmuscle and mobility}
+
+dat$Combined <- str_c(dat$lgmuscle, '', dat$mobilityind)
+
+view(dat$Combined)
+#plot(dat$Combined, dat$age)
+
+```
+
+```{r}
+#boxplot(dat$ever_smoked> 0, dat$age)
+
+
+dat %>%
+  ggplot(aes(dat$ever_smoked, dat$age)) +
+  geom_violin()
+```
+
 
 
 
