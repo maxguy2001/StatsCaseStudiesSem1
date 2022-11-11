@@ -32,16 +32,16 @@ Confounding variables:
 
 ```{r mother alive}
 #cor(df_final$age, df_final$mother_alive)
-boxplot(df$age ~ df$mother_alive, data = df)
-mean(df_final$age[df_final$mother_alive =="1"])
+#boxplot(df$age ~ df$mother_alive, data = df)
+#mean(df_final$age[df_final$mother_alive =="1"])
 
-df %>%
-  mean(age[mother_alive =="5"]) 
+#df %>%
+  #mean(age[mother_alive =="5"]) 
 
 ```
 
 ```{r father alive}
-boxplot(df$age ~ df$mother_alive, data = df)
+#boxplot(df$age ~ df$mother_alive, data = df)
 
 ```
 
@@ -49,12 +49,12 @@ boxplot(df$age ~ df$mother_alive, data = df)
 
 ```{r age chronic mod}
 
-df_remove_na_columns %>%
-  ggplot(aes(x=chronic_mod, y = age)) +
-  geom_point()
+#df_remove_na_columns %>%
+  #ggplot(aes(x=chronic_mod, y = age)) +
+  #geom_point()
 
-summary(df_remove_na_columns$age)
-summary(df_remove_na_columns$age, df_remove_na_columns$chronic_mod)
+#summary(df_remove_na_columns$age)
+#summary(df_remove_na_columns$age, df_remove_na_columns$chronic_mod)
 
 
 ```
@@ -64,22 +64,22 @@ summary(df_remove_na_columns$age, df_remove_na_columns$chronic_mod)
 
 
 ```{r histo of ages}
-dat %>%
-  ggplot(aes(x=age)) +
-  geom_histogram()
+#dat %>%
+  #ggplot(aes(x=age)) +
+  #geom_histogram()
 
 ```
 
 Graph showing the ammount of NAs and justifiable to be able to discuss whcih columns needed taking out.
 ```{r}
-library(visdat)
-vis_dat(df)
+#library(visdat)
+#vis_dat(df)
 ```
 
 
 ```{r}
-a<-prop.table(xtabs(~ sphus+chronic_mod, dat),2)
-barplot(a)
+#a<-prop.table(xtabs(~ sphus+chronic_mod, dat),2)
+#barplot(a)
 ```
 
 
