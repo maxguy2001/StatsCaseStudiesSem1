@@ -168,13 +168,6 @@ income_pct_w4
 
 ## Creating a model
 
-3 different ways, all the same answer:
-1. using step() which automatically sorts it
-2. looking at summary and systematically removing each variable 
-3. using step() but forward selection
-
-All end up with same 14 predictors, but step 2. removes two extra which have 0.05 < p-values < 0.1
-
 ```{r}
 df_final <- na.omit(df_remove_na_columns)
 
@@ -198,20 +191,30 @@ dplyr::intersect(df_train, df_test)
 ```
 
 ```{r}
-# step by step removal 
+lm1 <- lm(cogscore ~ ., data = df_train)
+formula(lm1)
+# could paste this formula into lm below. Note gender * () fits main effects plus interaction for each combination
 
-#summary(lm(cogscore ~ ., data = df_train))
-#summary(lm(cogscore ~ . - finemotor - br010_mod - grossmotor - hc029_ - hypertension - hhsize - mobilityind - adla - lgmuscle - hc012_ - diabetes, data = df_train))
+lm1 <- lm(cogscore ~ female + age + isced1997_r + eduyears_mod + hhsize + 
+    sphus + euro5 + eurod + hc002_mod + hc012_ + hc029_ + adla + 
+    iadlza + mobilityind + lgmuscle + grossmotor + finemotor + 
+    bmi + smoking + ever_smoked + br010_mod + br015_ + diabetes + 
+    hypertension, data = df_train)    
+         
+# alternative would be to select models separately for males and females. This might be the easier option. As besides interaction with gender there would also be other interactions. Which would get rather complicated in the above model. 
 
-# now looking to see if removing smoking improves r^2 from 0.3673 - doesn't, decreases to 3.67
-#summary(lm(cogscore ~ . - finemotor - br010_mod - grossmotor - hc029_ - hypertension - hhsize - mobilityind - adla - lgmuscle - hc012_ - diabetes - smoking, data = df_train))
+ 
+plot(lm1) # check out residual plots. Modelling log(bmi) might improve residual regarding constant variance assumption. But this makes interpretation more cumbersome. Note that we should check observations with high leverage
 
-# now looking to see if removing bmi improves r^2 from 0.3673 - doesn't, decreases to 3.67
-#summary(lm(cogscore ~ . - finemotor - br010_mod - grossmotor - hc029_ - hypertension - hhsize - mobilityind - adla - lgmuscle - hc012_ - diabetes - bmi , data = df_train))
+```
 
-#keep both in, and this is the final model
+```{r }
 
-summary(lm(cogscore ~ . - finemotor - br010_mod - grossmotor - hc029_ - hypertension - hhsize - mobilityind - adla - lgmuscle - hc012_ - diabetes, data = df_train))
+model<-step(lm1, trace=F,k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
+drop1(model,test="F")
+summary(model)
+
+plot(model)
 ```
 
 
@@ -219,17 +222,17 @@ summary(lm(cogscore ~ . - finemotor - br010_mod - grossmotor - hc029_ - hyperten
 Note backwards produces different model
 ```{r}
 #formula(lm)
-ggplot(df_train, aes(x = female - 0.12* age + 0.65*isced1997_r + 0.15*eduyears_mod - 0.23*sphus + 0.48*euro5 - 0.28*eurod + 0.011*hc002_mod + 0.015*bmi + 0.060*smoking - 0.085*ever_smoked - 0.17*br015_ , y = cogscore)) +
-  geom_point() +
-  stat_smooth()
+#ggplot(df_train, aes(x = female - 0.12* age + 0.65*isced1997_r + 0.15*eduyears_mod - 0.23*sphus + 0.48*euro5 - 0.28*eurod + 0.011*hc002_mod + 0.015*bmi + 0.060*smoking - 0.085*ever_smoked - 0.17*br015_ , y = cogscore)) +
+  #geom_point() +
+  #stat_smooth()
 ```
 
 ```{r}
 # residual sum of squares 
-RSS <- c(crossprod(forward$residuals))
+RSS <- c(crossprod(model$residuals))
 
 # mean square error
-MSE <- RSS/length(forward$residuals)
+MSE <- RSS/length(model$residuals)
 
 # root mean sqaure error
 RMSE <- sqrt(MSE)
@@ -241,10 +244,10 @@ Low RMSE is good
 # Validation
 ```{r sorting-dataframes}
 
-variables <- c("age","isced1997_r", "iadlza", "eurod",  "female" , "br015_" , "eduyears_mod" , "euro5" , "sphus" , "chronic_mod" , "casp" , "bmi" , "ever_smoked", "cogscore")
+vars <- colnames(df_train)
 
-df_train_validation <- df_train[, names(df_train) %in% variables]
-df_test_validation <- df_test[, names(df_test) %in% variables]
+df_train_validation <- df_train[, names(df_train) %in% vars]
+df_test_validation <- df_test[, names(df_test) %in% vars]
 
 dat_country_28 <- dat[dat$country == 28,]
 df_w4_c28 <- dat_country_28[dat_country_28$wave == 4,]
@@ -254,8 +257,8 @@ df_w6_c35 <- dat_country_35[dat_country_35$wave == 6,]
 df_w6_c35[df_w6_c35 < 0 ] <- NA
 df_w4_c28[df_w4_c28 < 0 ] <- NA
 
-df_w6_c35 <- df_w6_c35[, names(df_w6_c35) %in% variables]
-df_w4_c28 <- df_w4_c28[, names(df_w4_c28) %in% variables]
+df_w6_c35 <- df_w6_c35[, names(df_w6_c35) %in% vars]
+df_w4_c28 <- df_w4_c28[, names(df_w4_c28) %in% vars]
 
 # count unusable rows
 nrow(df_w6_c35 %>% drop_na())
