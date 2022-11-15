@@ -93,27 +93,25 @@ df <- dat_country_35[dat_country_35$wave == 4,]
 
 df[df < 0 ] <- NA
 
-#colSums(is.na(df))
+
+df$everyday_tasks <- df$adla + df$iadlza
+
+df$diabetes <- df$chronic_mod
+df$hypertension <- df$chronic_mod
+
+# adding hypertension and diabetes to the variables
+df$diabetes[df$diabetes != 5] <- 0
+df$diabetes[df$diabetes == 5] <- 1
+df$hypertension[df$hypertension != 2] <- 0
+df$hypertension[df$hypertension == 2] <- 1
+
 
 # removing variables we don't want or have too many NAs
-df_remove_na_columns <- df[,!(names(df) %in% c( "mergeid", "hhid", "wave", "wavepart", "int_version", "int_year", "int_month", "country", "country_mod", "language", 
-                                                "birth_country", "citizenship", "mar_stat", "partnerinhh", 
-                                                "ch001_", "ch007_km", "casp", "sp002_mod", "adlwa", "iadla", "bmi2", 
-                                                "co007_", "thinc_m",
-                                                
-                                                "dn002_mod", "dn003_mod", "dn004_mod",
-                                                
-                                                "euro1", "euro2", "euro3", "euro4", "euro6", "euro7", "euro8", 
-                                                "euro9", "euro10", "euro11", "euro12", 
-                                                "coupleid", "iv009_mod",
-                                                "books_age10", "maths_age10", "language_age10", 
-                                               "vaccinated", "childhood_health", "q34_re",
-                                               "ch021_mod", "ch007_hh", "maxgrip",
-                                               "int_partner", "age_partner", "gender_partner", "mother_alive", "father_alive", "siblings_alive",
-                                               "sp003_1_mod", "sp003_2_mod",  "sp009_3_mod", "sp003_3_mod", "sp009_1_mod", "sp009_2_mod", "sp008_",
-                                               "bfi10_extra_mod", "bfi10_agree_mod", "bfi10_consc_mod", "bfi10_neuro_mod", "bfi10_open_mod", 
-                                               "ep005_", "ep009_mod", "ep011_mod", "ep013_mod", "ep026_mod", "ep036_mod",
-                                               "income_pct_w1","income_pct_w2", "income_pct_w4","income_pct_w5", "income_pct_w6","income_pct_w7","income_pct_w8"))]
+df_remove_na_columns <- df[,(names(df) %in% c("female", "age", "sphus", "isced1997_r", "eduyears_mod", 
+                                              "hhsize", "euro5", "eurod", "hypertension", "br010_mod", 
+                                              "bmi", "ever_smoked", "br015_", "mobilityind", "diabetes",
+                                              "everyday_tasks", "cogscore"))]
+
 
 # now remove the ones that are part of cognitive score
 df_remove_na_columns <- df_remove_na_columns[,!(names(df_remove_na_columns) %in% c( "numeracy_1", "numeracy_2", "orienti", "recall_1", "recall_2"))]
@@ -123,19 +121,7 @@ colSums(is.na(df_remove_na_columns))
 # count number of usable rows
 nrow(df_remove_na_columns %>% drop_na())
 
-ncol(df_remove_na_columns)
 
-df_remove_na_columns$diabetes <- df_remove_na_columns$chronic_mod
-df_remove_na_columns$hypertension <- df_remove_na_columns$chronic_mod
-
-# adding hypertension and diabetes to the variables
-df_remove_na_columns$diabetes[df_remove_na_columns$diabetes != 5] <- 0
-df_remove_na_columns$diabetes[df_remove_na_columns$diabetes == 5] <- 1
-df_remove_na_columns$hypertension[df_remove_na_columns$hypertension != 2] <- 0
-df_remove_na_columns$hypertension[df_remove_na_columns$hypertension == 2] <- 1
-
-# remove chronic_mod as only interested in diabetes and hypertension
-df_remove_na_columns <- df_remove_na_columns[,!(names(df_remove_na_columns)) %in% c("chronic_mod")] 
 ```
 
 female
@@ -143,39 +129,24 @@ age
 isced1997_r
 eduyears_mod
 hhsize
-ch007_km
 sphus
-chronic_mod
-casp
+diabetes
+hypertension
 euro5
 eurod
-hc002_mod
-hc012_
-hc029_
-adla
-iadlza
 mobilityind
-lgmuscle
-grossmotor
-finemotor
 bmi
-smoking
 ever_smoked
 br010_mod
 br015_
-income_pct_w4
+everyday_tasks
+cogscore
 
 
 ## Creating a model
 
 ```{r}
 df_final <- na.omit(df_remove_na_columns)
-
-df_final$hc012_[df_final$hc012_ == 5] <- 0
-df_final$hc029_[df_final$hc029_ == 5] <- 0
-df_final$hc029_[df_final$hc029_ == 3] <- 1
-
-
 ```
 
 ```{r}
@@ -196,10 +167,8 @@ formula(lm1)
 # could paste this formula into lm below. Note gender * () fits main effects plus interaction for each combination
 
 lm1 <- lm(cogscore ~ female + age + isced1997_r + eduyears_mod + hhsize + 
-    sphus + euro5 + eurod + hc002_mod + hc012_ + hc029_ + adla + 
-    iadlza + mobilityind + lgmuscle + grossmotor + finemotor + 
-    bmi + smoking + ever_smoked + br010_mod + br015_ + diabetes + 
-    hypertension, data = df_train)    
+    sphus + euro5 + eurod + mobilityind + bmi + ever_smoked + br010_mod + br015_ + diabetes + 
+    hypertension + everyday_tasks, data = df_train)    
          
 # alternative would be to select models separately for males and females. This might be the easier option. As besides interaction with gender there would also be other interactions. Which would get rather complicated in the above model. 
 
@@ -221,10 +190,9 @@ plot(model)
 
 Note backwards produces different model
 ```{r}
-#formula(lm)
-#ggplot(df_train, aes(x = female - 0.12* age + 0.65*isced1997_r + 0.15*eduyears_mod - 0.23*sphus + 0.48*euro5 - 0.28*eurod + 0.011*hc002_mod + 0.015*bmi + 0.060*smoking - 0.085*ever_smoked - 0.17*br015_ , y = cogscore)) +
-  #geom_point() +
-  #stat_smooth()
+ggplot(df_train, aes(x = 0.9016* female - 0.1277* age + 0.6852*isced1997_r + 0.1493*eduyears_mod - 0.2282*sphus + 0.5693*euro5 - 0.2956*eurod - 0.1497*br015_  -0.4554*everyday_tasks, y = cogscore)) +
+  geom_point() +
+  stat_smooth()
 ```
 
 ```{r}
@@ -252,7 +220,8 @@ df_test_validation <- df_test[, names(df_test) %in% vars]
 dat_country_28 <- dat[dat$country == 28,]
 df_w4_c28 <- dat_country_28[dat_country_28$wave == 4,]
 
-df_w6_c35 <- dat_country_35[dat_country_35$wave == 6,]
+dat_country_35 <- dat[dat$country == 35,]
+df_w6_c35 <- dat_country_35[dat_country_35$wave == 5,]
 
 df_w6_c35[df_w6_c35 < 0 ] <- NA
 df_w4_c28[df_w4_c28 < 0 ] <- NA
