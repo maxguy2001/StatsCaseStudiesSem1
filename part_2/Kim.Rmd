@@ -42,7 +42,7 @@ df %>%
 
 ```
 
-This shows it for father_alive, by the proportion of if the observations age is greater than 60, then there is only a small porportin with their father still alive.
+This shows it for father_alive, by the proportion of if the observations age is greater than 60, then there is only a small proportion with their father still alive.
 
 ```{r}
 x<-prop.table(xtabs(~ (round(age)>60) +father_alive, df),2)
@@ -60,7 +60,7 @@ Its clear that the age of chronic mod, is much higher and so we can conclude tha
 
 ```{r age chronic mod}
 
-df_remove_na_columns %>%
+df_final %>%
   ggplot(aes(x=chronic_mod, y = age)) +
   geom_point()
 
@@ -73,7 +73,7 @@ We want to look specifically at when chronic_mod is 2 and 5, for hypertension an
 Got this table, unsure how to extract columns for the results we were looking at. would then be able to take the mean of them to discuss.
 
 ```{r}
-table(round(df_remove_na_columns$age), df_remove_na_columns$chronic_mod)
+table(round(df_final$age), df_final$chronic_mod)
 
 ```
 
@@ -81,7 +81,7 @@ table(round(df_remove_na_columns$age), df_remove_na_columns$chronic_mod)
 By this simple box plot clear that the distribution of age is much higher. We can then sya that cognitive score once calculated wont be affected by an indivual being young as there is no age observation that will skew this. Hence also concluding that when looking at dementia it is clear that it is only affected in older ages.
 ```{r histo of ages}
 
-y <-table(round(df_remove_na_columns$age))
+y <-table(round(df_final$age))
 barplot(y)
 
 dat %>%
@@ -106,7 +106,7 @@ barplot(a)
 
 
 Looking at obesity:
-talked about this in the tut. to talk about obesity, higher percent of large BMI, the more struggle to stand up, climb several sets of stairs etc.
+talked about this in the tut. to talk about obesity, higher percent of large BMI, the more struggle to stand up, climb several sets of stairs etc. 
 
 We looked at different causes of obesity, and so from our given data we combined bmi and lgmuscle, to look at the percent of bmi by mobility. We see that the higher percent of bmi, and the higher the struggle of standing up and the other parts of lgmuscle, which would coincide with our intuitive. Then we would be able to look at this with cognitive score.
 ```{r obesity}
