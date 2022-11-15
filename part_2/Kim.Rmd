@@ -1,0 +1,148 @@
+---
+title: "Dementia Risk Factors: EDA of easySHARE data"
+author: "Kim Johnston"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load data
+Load the easySHARE data. For information on data and variables, see the [easySHARE data  guide](http://www.share-project.org/fileadmin/pdf_documentation/easySHARE_Release_8.0.0_ReleaseGuide.pdf).
+
+```{r easyshare}
+load("../data/easySHARE_rel8_0_0.rda")
+dat<-easySHARE_rel8_0_0
+```
+
+Load packages:
+  
+```{r packs, message = FALSE}
+library(ggplot2)
+library(tidyverse)
+library(gridExtra)
+```
+
+
+Exploring data, stats:
+
+By first instinct, mother_alive and father_alive we would think that these could confound with age. So from exploriung the relationship,  this graph cleary shows that as the mean of the distribution of age is higher for when mother_alive is yes.
+
+Confounding variables:
+
+```{r mother alive}
+#cor(df_final$age, df_final$mother_alive)
+boxplot(df$age ~ df$mother_alive, data = df)
+mean(df_final$age[df_final$mother_alive =="1"])
+
+df %>%
+  mean(age[mother_alive =="5"]) 
+
+```
+
+This shows it for father_alive, by the proportion of if the observations age is greater than 60, then there is only a small porportin with their father still alive.
+
+```{r}
+x<-prop.table(xtabs(~ (round(age)>60) +father_alive, df),2)
+plot(x)
+
+```
+
+```{r father alive}
+boxplot(df$age ~ df$mother_alive, data = df)
+
+```
+
+
+Its clear that the age of chronic mod, is much higher and so we can conclude that chronic_mod confounds with age.
+
+```{r age chronic mod}
+
+df_remove_na_columns %>%
+  ggplot(aes(x=chronic_mod, y = age)) +
+  geom_point()
+
+
+```
+
+
+We want to look specifically at when chronic_mod is 2 and 5, for hypertension and diabetes respectively. And so its clear the 
+
+Got this table, unsure how to extract columns for the results we were looking at. would then be able to take the mean of them to discuss.
+
+```{r}
+table(round(df_remove_na_columns$age), df_remove_na_columns$chronic_mod)
+
+```
+
+
+By this simple box plot clear that the distribution of age is much higher. We can then sya that cognitive score once calculated wont be affected by an indivual being young as there is no age observation that will skew this. Hence also concluding that when looking at dementia it is clear that it is only affected in older ages.
+```{r histo of ages}
+
+y <-table(round(df_remove_na_columns$age))
+barplot(y)
+
+dat %>%
+  ggplot(aes(x=age)) +
+  geom_histogram()
+
+```
+
+
+
+When first looking at the data, we wanted to clearly be able to see if there was any problematic data we would have to deal with. This graph shows the amount of NAs and so from here we are able to look at the mostly NA columns closer to decide if they need to be kept in to further our investigation.
+```{r}
+#library(visdat)
+#vis_dat(df)
+```
+
+
+```{r}
+a<-prop.table(xtabs(~ sphus+chronic_mod, dat),2)
+barplot(a)
+```
+
+
+Looking at obesity:
+talked about this in the tut. to talk about obesity, higher percent of large BMI, the more struggle to stand up, climb several sets of stairs etc.
+
+We looked at different causes of obesity, and so from our given data we combined bmi and lgmuscle, to look at the percent of bmi by mobility. We see that the higher percent of bmi, and the higher the struggle of standing up and the other parts of lgmuscle, which would coincide with our intuitive. Then we would be able to look at this with cognitive score.
+```{r obesity}
+o<-prop.table(xtabs(~ bmi2+ lgmuscle, dat),2)
+barplot(o)
+barplot(o,las=2,legend.text=TRUE, main= "Percent bmi by mobility (barplot)")
+```
+
+
+This doesnt give anything interesting, just that its very mixed data
+```{r age bmi}
+ggplot(dat, aes(bmi,age,color=female)) + geom_point() + stat_smooth(method="lm")
+```
+
+
+```{r combining lgmuscle and mobility}
+
+dat$Combined <- str_c(dat$lgmuscle, '', dat$mobilityind)
+
+view(dat$Combined)
+#plot(dat$Combined, dat$age)
+
+```
+
+
+
+Smoking - however cant get this graph to work and look like what we want. However one way I got showed it didn't really show anything interesing.
+```{r}
+#boxplot(dat$ever_smoked> 0, dat$age)
+
+
+ggplot(dat, aes(x=ever_smoked, y=age)) +
+  geom_violin() +
+  coord_cartesian(ylim = c(0,100), xlim = c(0,6) )
+```
+
+
+
+

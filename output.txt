@@ -1,0 +1,112 @@
+Log Initialised
+
+Started iteration:  1
+Best columns:  bmi2 Best columns:  chronic_mod Best columns:  lgmuscle
+With absolute correlation values:  0.88943991308476 With absolute correlation values:  0.209257563826914 With absolute correlation values:  0.141094947064575
+found best correlations
+Printed best  5  correlations
+Swiched column  chronic_mod  from df_all to df_model
+Sucessfully made model
+Evaluted model
+Evaluated model improvement
+Finished iteration 1
+Started iteration:  1
+Best columns:  bmi2 Best columns:  lgmuscle Best columns:  mobilityind
+With absolute correlation values:  0.88943991308476 With absolute correlation values:  0.141094947064575 With absolute correlation values:  0.134705665410353
+found best correlations
+Printed best  5  correlations
+Swiched column  lgmuscle  from df_all to df_model
+Sucessfully made model
+Evaluted model
+Evaluated model improvement
+Finished iteration 1
+Started iteration:  1
+Best columns:  bmi2 Best columns:  mobilityind Best columns:  sphus
+With absolute correlation values:  0.88943991308476 With absolute correlation values:  0.134705665410353 With absolute correlation values:  0.118833577828858
+found best correlations
+Printed best  5  correlations
+Swiched column  mobilityind  from df_all to df_model
+Sucessfully made model
+Evaluted model
+Evaluated model improvement
+Finished iteration 1
+Started iteration:  1
+Best columns:  bmi2 Best columns:  sphus Best columns:  eduyears_mod
+With absolute correlation values:  0.88943991308476 With absolute correlation values:  0.118833577828858 With absolute correlation values:  0.110224778526462
+found best correlations
+Printed best  5  correlations
+Swiched column  eduyears_mod  from df_all to df_model
+Sucessfully made model
+Evaluted model
+Evaluated model improvement
+Finished iteration 1
+Started iteration:  1
+Best columns:  bmi2 Best columns:  sphus Best columns:  co007_
+With absolute correlation values:  0.88943991308476 With absolute correlation values:  0.118833577828858 With absolute correlation values:  0.0945147435181843
+found best correlations
+Printed best  5  correlations
+Swiched column  co007_  from df_all to df_model
+Sucessfully made model
+Evaluted model
+Evaluated model improvement
+Finished iteration 1
+Started iteration:  1
+Best columns:  bmi2 Best columns:  sphus Best columns:  grossmotor
+With absolute correlation values:  0.88943991308476 With absolute correlation values:  0.118833577828858 With absolute correlation values:  0.0921185158033428
+found best correlations
+Printed best  5  correlations
+Swiched column  grossmotor  from df_all to df_model
+Sucessfully made model
+Evaluted model
+Evaluated model improvement
+Finished iteration 1
+Started iteration:  1
+Best columns:  bmi2 Best columns:  sphus Best columns:  ch001_
+With absolute correlation values:  0.88943991308476 With absolute correlation values:  0.118833577828858 With absolute correlation values:  0.0905870468094299
+found best correlations
+Printed best  5  correlations
+Swiched column  ch001_  from df_all to df_model
+Sucessfully made model
+Evaluted model
+Evaluated model improvement
+Finished iteration 1
+Started iteration:  1
+Best columns:  bmi2 Best columns:  sphus Best columns:  gender_partner
+With absolute correlation values:  0.88943991308476 With absolute correlation values:  0.118833577828858 With absolute correlation values:  0.0873528035996808
+found best correlations
+Printed best  5  correlations
+Swiched column  casp  from df_all to df_model
+Sucessfully made model
+Evaluted model
+Evaluated model improvement
+Finished iteration 1
+Started iteration:  1
+Best columns:  bmi2 Best columns:  sphus Best columns:  gender_partner
+With absolute correlation values:  0.88943991308476 With absolute correlation values:  0.118833577828858 With absolute correlation values:  0.0873528035996808
+found best correlations
+Printed best  5  correlations
+Swiched column  euro9  from df_all to df_model
+Sucessfully made model
+Evaluted model
+Evaluated model improvement
+Finished iteration 1
+Started iteration:  1
+Best columns:  bmi2 Best columns:  sphus Best columns:  gender_partner
+With absolute correlation values:  0.88943991308476 With absolute correlation values:  0.118833577828858 With absolute correlation values:  0.0873528035996808
+found best correlations
+Printed best  5  correlations
+Swiched column  female  from df_all to df_model
+Sucessfully made model
+Evaluted model
+Evaluated model improvement
+Finished iteration 1
+Started iteration:  1
+Best columns:  bmi2 Best columns:  sphus Best columns:  gender_partner
+With absolute correlation values:  0.88943991308476 With absolute correlation values:  0.118833577828858 With absolute correlation values:  0.0873528035996808
+found best correlations
+Printed best  8  correlations
+Swiched column  ep013_mod  from df_all to df_model
+Sucessfully made model
+Evaluted model
+Evaluated model improvement
+Finished iteration 1
