@@ -7,9 +7,9 @@ load("data/easySHARE_rel8_0_0.rda")
 dat<-easySHARE_rel8_0_0
 
 #make predictor column
-make_predictor <- function(dat){
+make_predictor <- function(df){
   cogvars <- c("recall_1", "recall_2", "orienti", "numeracy_1", "numeracy_2")
-  cog = dat[cogvars]
+  cog = df[cogvars]
   numeracy = rep(NA,dim(cog)[1])
   numeracy[cog$numeracy_1 >= 0 & cog$numeracy_2 >= 0] = (cog$numeracy_1[cog$numeracy_1 >= 0 & cog$numeracy_2 >= 0] + cog$numeracy_2[cog$numeracy_1 >= 0 & cog$numeracy_2 >= 0] )/2
   numeracy[cog$numeracy_1 >= 0 & cog$numeracy_2 < 0] = cog$numeracy_1[cog$numeracy_1 >= 0 & cog$numeracy_2 < 0]
@@ -20,7 +20,7 @@ make_predictor <- function(dat){
   cogscore[ind] = cog$recall_1[ind] + cog$recall_2[ind] +  cog$orienti[ind] + cog$numeracy[ind]
   cog$cogscore = cogscore
   dat$cogscore<-cog$cogscore
-  return(dat)
+  return(df)
 }
 
 #function to remove columns
@@ -52,28 +52,9 @@ filter_dat <- function(dat){
               "ep013_mod", "ep026_mod", "ep036_mod", "income_pct_w1",
               "income_pct_w2", "income_pct_w5", "income_pct_w6",
               "income_pct_w7","income_pct_w8"))
-    return(dat)
+  
+  dat[dat < 0 ] <- NA
+  
+  return(dat)
 }
 
-
-#define function to combine columns
-combine_columns <- function(dat, cols_to_combine, method="mean", weights=NA){
-  
-  #select columns
-  subset <- dat(select(cols_to_combine))
-  
-  if(method == "mean"){
-    return(rowMeans(subset))
-  }
-  else if(method == "weighted"){
-    for(i in 1:ncols(subset)){
-      subset[i] <- subset[i]*weights[i]
-      return(rowMeans(subset))
-    }
-  }
-  
-}
-
-
-
-#column combination
