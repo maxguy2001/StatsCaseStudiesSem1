@@ -93,7 +93,6 @@ df <- dat_country_35[dat_country_35$wave == 4,]
 
 df[df < 0 ] <- NA
 
-
 df$everyday_tasks <- df$adla + df$iadlza
 
 df$diabetes <- df$chronic_mod
@@ -104,22 +103,24 @@ df$diabetes[df$diabetes != 5] <- 0
 df$diabetes[df$diabetes == 5] <- 1
 df$hypertension[df$hypertension != 2] <- 0
 df$hypertension[df$hypertension == 2] <- 1
+df$ever_smoked[df$ever_smoked == 5] <- 0
 
 
 # removing variables we don't want or have too many NAs
-df_remove_na_columns <- df[,(names(df) %in% c("female", "age", "sphus", "isced1997_r", "eduyears_mod", 
+
+df_columns <- df[,(names(df) %in% c("female", "age", "sphus", "isced1997_r", "eduyears_mod", 
                                               "hhsize", "euro5", "eurod", "hypertension", "br010_mod", 
                                               "bmi", "ever_smoked", "br015_", "mobilityind", "diabetes",
                                               "everyday_tasks", "cogscore"))]
 
 
 # now remove the ones that are part of cognitive score
-df_remove_na_columns <- df_remove_na_columns[,!(names(df_remove_na_columns) %in% c( "numeracy_1", "numeracy_2", "orienti", "recall_1", "recall_2"))]
+df_columns <- df_columns[,!(names(df_columns) %in% c( "numeracy_1", "numeracy_2", "orienti", "recall_1", "recall_2"))]
 
-colSums(is.na(df_remove_na_columns))
+colSums(is.na(df_columns))
 
 # count number of usable rows
-nrow(df_remove_na_columns %>% drop_na())
+nrow(df_columns %>% drop_na())
 
 
 ```
@@ -143,10 +144,16 @@ everyday_tasks
 cogscore
 
 
+```{r}
+plot(df_final$cogscore, df_final$everyday_tasks)
+```
+
+
+
 ## Creating a model
 
 ```{r}
-df_final <- na.omit(df_remove_na_columns)
+df_final <- na.omit(df_columns)
 ```
 
 ```{r}
@@ -172,18 +179,24 @@ lm1 <- lm(cogscore ~ female + age + isced1997_r + eduyears_mod + hhsize +
          
 # alternative would be to select models separately for males and females. This might be the easier option. As besides interaction with gender there would also be other interactions. Which would get rather complicated in the above model. 
 
- 
-plot(lm1) # check out residual plots. Modelling log(bmi) might improve residual regarding constant variance assumption. But this makes interpretation more cumbersome. Note that we should check observations with high leverage
+summary(lm1)
+#plot(lm1) # check out residual plots. Modelling log(bmi) might improve residual regarding constant variance assumption. But this makes interpretation more cumbersome. Note that we should check observations with high leverage
 
 ```
 
 ```{r }
 
-model<-step(lm1, trace=F,k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
-drop1(model,test="F")
+model<-step(lm1, trace=F, k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
 summary(model)
-
 plot(model)
+```
+
+```{r }
+drop1(model,test="F")
+
+# to include in table
+coefs<-model$coefficients 
+CI<- confint(model) 
 ```
 
 
