@@ -169,6 +169,20 @@ dplyr::intersect(df_train, df_test)
 ```
 
 ```{r}
+#df_train$female <- as.factor(df_train$female)
+
+#df_train$isced1997_r <- as.factor(df_train$isced1997_r)
+#df_train$sphus <- as.factor(df_train$sphus)
+#df_train$euro5 <- as.factor(df_train$euro5)
+#df_train$hypertension <- as.factor(df_train$hypertension)
+#df_train$ever_smoked <- as.factor(df_train$ever_smoked)
+#df_train$br010_mod <- as.factor(df_train$br010_mod)
+#df_train$br015_ <- as.factor(df_train$br015_)
+#df_train$diabetes <- as.factor(df_train$diabetes)
+
+```
+
+```{r}
 lm1 <- lm(cogscore ~ ., data = df_train)
 formula(lm1)
 # could paste this formula into lm below. Note gender * () fits main effects plus interaction for each combination
@@ -188,15 +202,33 @@ summary(lm1)
 
 model<-step(lm1, trace=F, k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
 summary(model)
+formula(model)
 plot(model)
 ```
 
-```{r }
-drop1(model,test="F")
+```{r}
+plot(df_train$cogscore, log(df_train$eduyears_mod) )
+```
 
+
+```{r}
+transform_model <- lm(cogscore ~ age*(female + age + isced1997_r + eduyears_mod + euro5 + 
+    eurod + everyday_tasks ), data = df_train)
+
+new_model<-step(transform_model, trace=F, k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
+summary(new_model)
+formula(new_model)
+plot(new_model)
+```
+
+Interactions with age pointless
+
+
+```{r }
 # to include in table
 coefs<-model$coefficients 
 CI<- confint(model) 
+print(CI)
 ```
 
 
@@ -211,16 +243,20 @@ ggplot(df_train, aes(x = 0.9016* female - 0.1277* age + 0.6852*isced1997_r + 0.1
 ```{r}
 # residual sum of squares 
 RSS <- c(crossprod(model$residuals))
+RSS_new <- c(crossprod(new_model$residuals))
 
 # mean square error
 MSE <- RSS/length(model$residuals)
+MSE_new <- RSS_new/length(new_model$residuals)
 
 # root mean sqaure error
 RMSE <- sqrt(MSE)
+RMSE_new <- sqrt(MSE_new)
 
 print(RMSE)
+print(RMSE_new)
 ```
-Low RMSE is good 
+Low RMSE is good , higher on new model so doesn't predict as well. 
 
 # Validation
 ```{r sorting-dataframes}
