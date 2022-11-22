@@ -144,11 +144,6 @@ everyday_tasks
 cogscore
 
 
-```{r}
-plot(df_final$cogscore, df_final$everyday_tasks)
-```
-
-
 
 ## Creating a model
 
@@ -204,6 +199,8 @@ model<-step(lm1, trace=F, k=log(nrow(df_train))) # BIC, Bayesian Information cri
 summary(model)
 formula(model)
 plot(model)
+
+vars <- c("cogscore", "female", "age", "isced1997_r", "eduyears_mod", "sphus", "euro5", "eurod", "br015_", "everyday_tasks" )
 ```
 
 ```{r}
@@ -222,7 +219,6 @@ plot(new_model)
 ```
 
 Interactions with age pointless
-
 
 ```{r }
 # to include in table
@@ -258,10 +254,12 @@ print(RMSE_new)
 ```
 Low RMSE is good , higher on new model so doesn't predict as well. 
 
+```{r}
+table(dat$country, dat$wave)
+```
+
 # Validation
 ```{r sorting-dataframes}
-
-vars <- colnames(df_train)
 
 df_train_validation <- df_train[, names(df_train) %in% vars]
 df_test_validation <- df_test[, names(df_test) %in% vars]
@@ -270,7 +268,7 @@ dat_country_28 <- dat[dat$country == 28,]
 df_w4_c28 <- dat_country_28[dat_country_28$wave == 4,]
 
 dat_country_35 <- dat[dat$country == 35,]
-df_w6_c35 <- dat_country_35[dat_country_35$wave == 5,]
+df_w6_c35 <- dat_country_35[dat_country_35$wave == 6,]
 
 df_w6_c35[df_w6_c35 < 0 ] <- NA
 df_w4_c28[df_w4_c28 < 0 ] <- NA
@@ -289,10 +287,31 @@ df_w4_c28 <- na.omit(df_w4_c28)
 ```
 
 
+```{r}
+p_train <- data.frame(actual = df_train$cogscore, predicted = predict(model))
+head(p_train)
+plot(p_train$actual, p_train$predicted)
+```
+
+
 ```{r validation}
+p_test <- predict(model, df_test_validation)
+
+print(head(p_test))
+
+error_test <- p_test - df_test_validation[["cogscore"]]
+RMSE_test <- sqrt(mean(error_test^2))
+
+plot(error_test)
+
+
+print(RMSE_test)
 
 ```
 
+```{r}
+
+```
 
 
 
