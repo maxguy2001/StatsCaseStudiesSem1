@@ -145,4 +145,58 @@ ggplot(dat, aes(x=ever_smoked, y=age)) +
 
 
 
+Clear trend that as age decreases the cogscore does too.
+```{r cogscore age}
+
+ggplot(df_final, aes(x=age, y=cogscore)) +
+  geom_point()
+
+```
+
+```{r}
+ggplot(df_final, aes(x=sphus, y=cogscore)) +
+  geom_point()
+```
+
+```{r}
+ggplot(df_final, aes(x=isced1997_r, y=cogscore)) +
+  geom_point()
+```
+
+```{r}
+
+
+
+```
+
+
+
+##Predictions - scoring
+
+```{r}
+
+mean <-mean(cogscore)
+sd <- sd(cogscore)
+lwr1 <- mean - sd * qnorm(0.9)
+upr2 <- mean - sd * qnorm(0.1)
+
+score_A <- cbind(RMSE, df_train) %>%
+  mutate(
+    se = proper_score("se", cogscore, mean = mean(cogscore)),
+    ds = proper_score("ds", cogscore, mean = mean(cogscore), sd = sd(cogscore)),
+    interval = proper_score("interval", cogscore,
+                            lwr = lwr1, upr = upr2, alpha = 0.1)
+  )
+score_A_table <-
+  rbind(cbind(score_A, model = "A")) %>%
+  group_by(model) %>%
+          summarise(se = mean(se),
+                    ds = mean(ds),
+                    interval = mean(interval))
+knitr::kable(score_A_table)
+```
+
+
+
+
 
