@@ -1,0 +1,482 @@
+---
+title: "Dementia Risk Factors: EDA of easySHARE data"
+author: "Katrina Sanders, Kim Johnston, Max Guy"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load data
+
+Load the easySHARE data. For information on data and variables, see the [easySHARE data  guide](http://www.share-project.org/fileadmin/pdf_documentation/easySHARE_Release_8.0.0_ReleaseGuide.pdf).
+
+```{r load_data}
+load("../data/easySHARE_rel8_0_0.rda")
+dat<-easySHARE_rel8_0_0
+rm(easySHARE_rel8_0_0)
+```
+
+Load packages:
+  
+```{r load_libs, message = FALSE}
+library(tidyverse)
+library(gridExtra)
+```
+
+## Pre-processing
+
+## Cognitive score
+
+EasySHARE does not record diagnosis of dementia (e.g. Alzheimer's disease) in all waves. Instead, we will create a composite cognitive score as a proxy for dementia severity, following [Crimmins et al. (2011)](https://pubmed.ncbi.nlm.nih.gov/21743047/). The cognitive function indices are described in pg. 23 of the easySHARE data guide.
+
+```{r cogindices, message = FALSE, fig.height=3, fig.width=9}
+#select relevant cognitive variables
+cogvars <- c("recall_1", "recall_2", "orienti", "numeracy_1", "numeracy_2")
+
+#select cognitive subset of dataframe
+cog = dat[cogvars]
+
+#make exploratory plots
+p1 = ggplot() +
+  geom_histogram(aes(x=cog$recall_1), color="darkblue", fill="lightblue") +
+  labs(x ="Recall of words, first trial")
+p2 = ggplot() +
+  geom_histogram(aes(x=cog$recall_2), color="darkblue", fill="lightblue") +
+  labs(x ="Recall of words, second trial")
+p3 = ggplot() +
+  geom_histogram(aes(x=cog$orienti), color="darkblue", fill="lightblue") +
+  labs(x ="Orientation to date")
+p4 = ggplot() +
+  geom_histogram(aes(x=cog$numeracy_1), color="darkblue", fill="lightblue") +
+  labs(x ="Numeracy Score 1 (percentage)")
+p5 = ggplot() +
+  geom_histogram(aes(x=cog$numeracy_2), color="darkblue", fill="lightblue") +
+  labs(x ="Numeracy Score 2 (subtraction)")
+grid.arrange(p1, p2, p3, p4, p5, nrow = 2)
+rm(p1, p2, p3, p4, p5)
+```
+
+Notice the missing values (missing codes are explained on pg. 6 of missing codes of the easySHARE guide). In addition, for the numeracy measures, only one score is recorded in latter waves (pg. 23). Here we take a simple average if both measures are available. However, you may consider other approaches (please include an explanation/motivation). Notice that  `numeracy_1` ranges from 1 to 5, while `numeracy_2` ranges from 0 to 5.
+
+```{r numeracy, message = FALSE, warning=FALSE, fig.height=2, fig.width=3}
+#function to add numeracy column
+add_numeracy <- function(cog){
+  numeracy = rep(NA,dim(cog)[1])
+  numeracy[cog$numeracy_1 >= 0 & cog$numeracy_2 >= 0] =      (cog$numeracy_1[cog$numeracy_1 >= 0 & cog$numeracy_2 >= 0] + cog$numeracy_2[cog$numeracy_1 >= 0 & cog$numeracy_2 >= 0] )/2
+  numeracy[cog$numeracy_1 >= 0 & cog$numeracy_2 < 0] = cog$numeracy_1[cog$numeracy_1 >= 0 & cog$numeracy_2 < 0]
+  numeracy[cog$numeracy_1 < 0 & cog$numeracy_2 >= 0] = cog$numeracy_2[cog$numeracy_1 < 0 & cog$numeracy_2 >= 0]
+  cog$numeracy = numeracy
+  return(cog)
+}
+
+#call function to add numeracy column
+cog <- add_numeracy(cog)
+
+#plot numeracy histogram
+ggplot() +
+  geom_histogram(aes(x=cog$numeracy), color="darkblue", fill="lightblue") +
+  labs(x ="Numeracy Score")
+```
+
+We now create a composite cognitive score, ranging from 0 (bad) to 29 (good), that combines the recall scores, orientation, and numeracy measure. Note that orientation the description of the scale of orientation in the easySHARE guide appears incorrect, and I believe it should be 0 (bad) and 4 (good). 
+
+```{r cogscore, message = FALSE, warning=FALSE, fig.height=2, fig.width=3}
+
+#function to add cognitive score
+add_cogscore <- function(cog){
+  numeracy <- cog$numeracy
+  cogscore = rep(NA,dim(cog)[1])
+  ind <<- cog$recall_1 >= 0 & cog$recall_2 >= 0 & cog$orienti >= 0 & !is.na(numeracy)
+  cogscore[ind] = cog$recall_1[ind] + cog$recall_2[ind] +  cog$orienti[ind] + cog$numeracy[ind]
+  cog$cogscore = cogscore
+return(cog)
+}
+
+#call function to add cognitive score
+cog <- add_cogscore(cog)
+
+#plot cognitive score histogram
+ggplot() +
+  geom_histogram(aes(x=cog$cogscore[ind]), color="darkblue", fill="lightblue", binwidth =2 ) +
+  labs(x ="Composite cogntive score")
+
+dat$cogscore<-cog$cogscore
+```
+
+
+## Dementia risk factors
+
+Extract variables related to modifiable risk factors identified in literature: education, hearing loss, traumatic brain injury, hypertension, alcohol consumption, smoking, obesity, physical activity, depression, social isolation, diabetes, and air pollution [Livingston et al. (2020)](https://www.thelancet.com/article/S0140-6736(20)30367-6/fulltext). Refer to the easySHARE guide for a description of the variables availble. You may also consider other relevant risk factors, along with an explanation and motivation. Gender and age are also relevant variables to consider, e.g. to explore differences between men and women [Beam et al. (2018)](https://pubmed.ncbi.nlm.nih.gov/30010124/).
+
+
+```{r filtering_df}
+#filter subset of dataframe
+df <- dat %>%
+  filter(country == 35) %>%
+  filter(wave == 4)
+
+#set appropriate na values
+df[df < 0 ] <- NA
+
+df$everyday_tasks <- df$adla + df$iadlza
+
+df$diabetes <- df$chronic_mod
+df$hypertension <- df$chronic_mod
+
+# adding hypertension and diabetes to the variables
+df$diabetes[df$diabetes != 5] <- 0
+df$diabetes[df$diabetes == 5] <- 1
+df$hypertension[df$hypertension != 2] <- 0
+df$hypertension[df$hypertension == 2] <- 1
+df$ever_smoked[df$ever_smoked == 5] <- 0
+
+
+# removing variables we don't want or have too many NAs
+
+df_columns <- df[,(names(df) %in% c("female", "age", "sphus", "isced1997_r", "eduyears_mod", "hhsize", "euro5", "eurod", "hypertension", "br010_mod", "bmi", "ever_smoked", "br015_", "mobilityind", "diabetes", "everyday_tasks", "cogscore"))]
+
+# now remove the ones that are part of cognitive score
+df_columns <- df_columns[,!(names(df_columns) %in% c( "numeracy_1", "numeracy_2", "orienti", "recall_1", "recall_2"))]
+
+colSums(is.na(df_columns))
+
+# count number of usable rows
+nrow(df_columns %>% drop_na())
+
+#remove incomplete rows from dataframe
+df_final <- na.omit(df_columns)
+
+```
+
+## Exploring data, stats:
+
+By first instinct, mother_alive and father_alive we would think that these could confound with age. So from exploriung the relationship,  this graph cleary shows that as the mean of the distribution of age is higher for when mother_alive is yes.
+
+Confounding variables:
+
+```{r mother_alive}
+#cor(df_final$age, df_final$mother_alive)
+boxplot(df$age ~ df$mother_alive, data = df)
+mean(df_final$age[df_final$mother_alive =="1"])
+
+```
+
+This shows it for father_alive, by the proportion of if the observations age is greater than 60, then there is only a small proportion with their father still alive.
+
+```{r proportion_father_alive}
+x<-prop.table(xtabs(~ (round(age)>60) +father_alive, df),2)
+plot(x)
+
+```
+
+```{r father_alive}
+boxplot(df$age ~ df$mother_alive, data = df)
+
+```
+
+
+Its clear that the age of chronic mod, is much higher and so we can conclude that chronic_mod confounds with age.
+
+```{r age_chronic_mod}
+
+df %>%
+  ggplot(aes(x=chronic_mod, y = age)) +
+  geom_point()
+
+
+```
+
+
+We want to look specifically at when chronic_mod is 2 and 5, for hypertension and diabetes respectively. And so its clear the 
+
+Got this table, unsure how to extract columns for the results we were looking at. would then be able to take the mean of them to discuss.
+
+```{r numerical_table}
+#TODO: why like this? - heatmap or similar?
+table(round(df$age), df$chronic_mod)
+
+```
+
+
+By this simple box plot clear that the distribution of age is much higher. We can then sya that cognitive score once calculated wont be affected by an indivual being young as there is no age observation that will skew this. Hence also concluding that when looking at dementia it is clear that it is only affected in older ages.
+
+```{r hist_of_ages}
+
+y <-table(round(df_final$age))
+barplot(y)
+
+dat %>%
+  ggplot(aes(x=age)) +
+  geom_histogram(bins = 45)
+
+```
+
+
+
+When first looking at the data, we wanted to clearly be able to see if there was any problematic data we would have to deal with. This graph shows the amount of NAs and so from here we are able to look at the mostly NA columns closer to decide if they need to be kept in to further our investigation.
+
+
+```{r proprtion_barplots}
+#TODO: new variable - needed? Also axis labels + title
+a<-prop.table(xtabs(~ sphus+chronic_mod, dat),2)
+barplot(a)
+```
+
+
+Looking at obesity:
+talked about this in the tut. to talk about obesity, higher percent of large BMI, the more struggle to stand up, climb several sets of stairs etc. 
+
+We looked at different causes of obesity, and so from our given data we combined bmi and lgmuscle, to look at the percent of bmi by mobility. We see that the higher percent of bmi, and the higher the struggle of standing up and the other parts of lgmuscle, which would coincide with our intuitive. Then we would be able to look at this with cognitive score.
+```{r obesity}
+#TODO: new variable - needed? + labels & title
+o<-prop.table(xtabs(~ bmi2+ lgmuscle, dat),2)
+barplot(o)
+barplot(o,las=2,legend.text=TRUE, main= "Percent bmi by mobility (barplot)")
+```
+
+
+This doesnt give anything interesting, just that its very mixed data
+```{r age_bmi}
+#TODO - keeping?
+ggplot(dat, aes(bmi,age,color=female)) + geom_point() + stat_smooth(method="lm")
+```
+
+
+```{r combining_lgmuscle_and_mobility}
+
+#TODO - what's this for? can we delete?
+dat$Combined <- str_c(dat$lgmuscle, '', dat$mobilityind)
+
+#view(dat$Combined)
+#plot(dat$Combined, dat$age)
+
+```
+
+
+
+Smoking - however cant get this graph to work and look like what we want. However one way I got showed it didn't really show anything interesing.
+```{r}
+#TODO - delete this? (and above comment?)
+ggplot(dat, aes(x=ever_smoked, y=age)) +
+  geom_violin() +
+  coord_cartesian(ylim = c(0,100), xlim = c(0,6) )
+```
+
+
+
+Clear trend that as age decreases the cogscore does too.
+```{r cogscore_age}
+#TODO - some form of density plot better here?
+ggplot(df_final, aes(x=age, y=cogscore)) +
+  geom_point()
+
+```
+
+```{r}
+#TODO: what does this show?
+ggplot(df_final, aes(x=sphus, y=cogscore)) +
+  geom_point()
+```
+
+```{r}
+#TODO: what does this show (xlabels, title, etc.?)
+ggplot(df_final, aes(x=isced1997_r, y=cogscore)) +
+  geom_point()
+```
+
+
+## Creating a model
+
+
+```{r model_seup}
+set.seed(567)
+
+train_index <- sample(1:nrow(df_final), size =200)
+
+df_test <- df_final[train_index, ]
+df_train <- df_final[-train_index,]
+
+#check there is no intercept
+dplyr::intersect(df_train, df_test) 
+```
+
+```{r placeholder}
+#TODO: remove this?
+#df_train$female <- as.factor(df_train$female)
+
+#df_train$isced1997_r <- as.factor(df_train$isced1997_r)
+#df_train$sphus <- as.factor(df_train$sphus)
+#df_train$euro5 <- as.factor(df_train$euro5)
+#df_train$hypertension <- as.factor(df_train$hypertension)
+#df_train$ever_smoked <- as.factor(df_train$ever_smoked)
+#df_train$br010_mod <- as.factor(df_train$br010_mod)
+#df_train$br015_ <- as.factor(df_train$br015_)
+#df_train$diabetes <- as.factor(df_train$diabetes)
+
+```
+
+```{r construct_model}
+lm1 <- lm(cogscore ~ ., data = df_train)
+formula(lm1)
+# could paste this formula into lm below. Note gender * () fits main effects plus interaction for each combination
+
+lm1 <- lm(cogscore ~ female + age + isced1997_r + eduyears_mod + hhsize + 
+    sphus + euro5 + eurod + mobilityind + bmi + ever_smoked + br010_mod + br015_ + diabetes + 
+    hypertension + everyday_tasks, data = df_train)    
+         
+# alternative would be to select models separately for males and females. This might be the easier option. As besides interaction with gender there would also be other interactions. Which would get rather complicated in the above model. 
+
+summary(lm1)
+#plot(lm1) # check out residual plots. Modelling log(bmi) might improve residual regarding constant variance assumption. But this makes interpretation more cumbersome. Note that we should check observations with high leverage
+
+```
+
+```{r update_model_1}
+
+model<-step(lm1, trace=F, k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
+summary(model)
+formula(model)
+plot(model)
+
+vars <- c("cogscore", "female", "age", "isced1997_r", "eduyears_mod", "sphus", "euro5", "eurod", "br015_", "everyday_tasks" )
+```
+
+
+```{r upate_model_2}
+transform_model <- lm(cogscore ~ age*(female + age + isced1997_r + eduyears_mod + euro5 + 
+    eurod + everyday_tasks ), data = df_train)
+
+new_model<-step(transform_model, trace=F, k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
+summary(new_model)
+formula(new_model)
+plot(new_model)
+```
+
+Interactions with age pointless
+
+```{r producing_ci}
+# to include in table
+coefs<-model$coefficients 
+CI<- confint(model) 
+print(CI)
+```
+
+
+
+Note backwards produces different model
+```{r plotting_model}
+ggplot(df_train, aes(x = 0.9016* female - 0.1277* age + 0.6852*isced1997_r + 0.1493*eduyears_mod - 0.2282*sphus + 0.5693*euro5 - 0.2956*eurod - 0.1497*br015_  -0.4554*everyday_tasks, y = cogscore)) +
+  geom_point() +
+  stat_smooth()
+```
+
+```{r getting_errors}
+# residual sum of squares 
+RSS <- c(crossprod(model$residuals))
+RSS_new <- c(crossprod(new_model$residuals))
+
+# mean square error
+MSE <- RSS/length(model$residuals)
+MSE_new <- RSS_new/length(new_model$residuals)
+
+# root mean sqaure error
+RMSE <- sqrt(MSE)
+RMSE_new <- sqrt(MSE_new)
+
+print(RMSE)
+print(RMSE_new)
+```
+Low RMSE is good , higher on new model so doesn't predict as well. 
+
+
+# Validation
+```{r sorting-dataframes}
+
+#TODO(max): make this use less variables!
+df_train_validation <- df_train[, names(df_train) %in% vars]
+df_test_validation <- df_test[, names(df_test) %in% vars]
+
+dat_country_28 <- dat[dat$country == 28,]
+df_w4_c28 <- dat_country_28[dat_country_28$wave == 4,]
+
+dat_country_35 <- dat[dat$country == 35,]
+df_w6_c35 <- dat_country_35[dat_country_35$wave == 6,]
+
+df_w6_c35[df_w6_c35 < 0 ] <- NA
+df_w4_c28[df_w4_c28 < 0 ] <- NA
+
+df_w6_c35 <- df_w6_c35[, names(df_w6_c35) %in% vars]
+df_w4_c28 <- df_w4_c28[, names(df_w4_c28) %in% vars]
+
+# count unusable rows
+nrow(df_w6_c35 %>% drop_na())
+nrow(df_w4_c28 %>% drop_na())
+
+# drop unusable rows
+df_w6_c35 <- na.omit(df_w6_c35)
+df_w4_c28 <- na.omit(df_w4_c28)
+
+```
+
+
+```{r plotting_differences}
+p_train <- data.frame(actual = df_train$cogscore, predicted = predict(model))
+head(p_train)
+plot(p_train$actual, p_train$predicted)
+```
+
+
+```{r validation_test}
+p_test <- predict(model, df_test_validation)
+
+print(head(p_test))
+
+error_test <- p_test - df_test_validation[["cogscore"]]
+RMSE_test <- sqrt(mean(error_test^2))
+
+plot(error_test)
+
+
+print(RMSE_test)
+
+```
+
+
+
+##Predictions - scoring
+
+```{r scoring}
+
+mean <-mean(df_final$cogscore)
+sd <- sd(df_final$cogscore)
+lwr1 <- mean - sd * qnorm(0.9) #TODO: naming?
+upr2 <- mean - sd * qnorm(0.1)
+
+#TODO: what is proper score? where is it defined?
+score_A <- cbind(RMSE, df_train) %>%
+  mutate(
+    se = proper_score("se", cogscore, mean = mean(cogscore)),
+    ds = proper_score("ds", cogscore, mean = mean(cogscore), sd = sd(cogscore)),
+    interval = proper_score("interval", cogscore,
+                            lwr = lwr1, upr = upr2, alpha = 0.1)
+  )
+score_A_table <-
+  rbind(cbind(score_A, model = "A")) %>%
+  group_by(model) %>%
+          summarise(se = mean(se),
+                    ds = mean(ds),
+                    interval = mean(interval))
+knitr::kable(score_A_table)
+```
+
+
+
+
+
+
+
+
+
+
