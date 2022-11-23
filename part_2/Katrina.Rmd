@@ -264,25 +264,31 @@ table(dat$country, dat$wave)
 df_train_validation <- df_train[, names(df_train) %in% vars]
 df_test_validation <- df_test[, names(df_test) %in% vars]
 
-dat_country_28 <- dat[dat$country == 28,]
-df_w4_c28 <- dat_country_28[dat_country_28$wave == 4,]
+data_vars <- dat
+data_vars$everyday_tasks <- data_vars$adla + data_vars$iadlza
 
-dat_country_35 <- dat[dat$country == 35,]
-df_w6_c35 <- dat_country_35[dat_country_35$wave == 6,]
+data_35 <- data_vars[data_vars$country == 35,]
+data_35_6 <- data_35[data_35$wave == 6,]
 
-df_w6_c35[df_w6_c35 < 0 ] <- NA
-df_w4_c28[df_w4_c28 < 0 ] <- NA
+data_28 <- data_vars[data_vars$country == 28,]
+data_28_4 <- data_28[data_28$wave == 4,]
 
-df_w6_c35 <- df_w6_c35[, names(df_w6_c35) %in% vars]
-df_w4_c28 <- df_w4_c28[, names(df_w4_c28) %in% vars]
+data_35_6 <- data_35_6[, names(data_35_6) %in% vars]
+data_35_6[data_35_6 < 0 ] <- NA
+
+data_28_4 <- data_28_4[, names(data_28_4) %in% vars]
+data_28_4[data_28_4 < 0 ] <- NA
+
+
+
 
 # count unusable rows
-nrow(df_w6_c35 %>% drop_na())
-nrow(df_w4_c28 %>% drop_na())
+nrow(data_35_6 %>% drop_na())
+nrow(data_28_4 %>% drop_na())
 
 # drop unusable rows
-df_w6_c35 <- na.omit(df_w6_c35)
-df_w4_c28 <- na.omit(df_w4_c28)
+data_35_6 <- na.omit(data_35_6)
+data_28_4 <- na.omit(data_28_4)
 
 ```
 
@@ -296,24 +302,29 @@ plot(p_train$actual, p_train$predicted)
 
 ```{r validation}
 p_test <- predict(model, df_test_validation)
-
-print(head(p_test))
+p_data_35_6 <- predict(model, data_35_6)
+p_data_28_4 <- predict(model, data_28_4)
 
 error_test <- p_test - df_test_validation[["cogscore"]]
 RMSE_test <- sqrt(mean(error_test^2))
 
+error_data_35_6 <- p_data_35_6 - data_35_6[["cogscore"]]
+RMSE_data_35_6 <- sqrt(mean(error_p_data_35_6^2))
+
+error_data_28_4 <- p_data_28_4 - data_35_6[["cogscore"]]
+RMSE_data_28_4 <- sqrt(mean(error_data_28_4^2))
+
 plot(error_test)
-
-
 print(RMSE_test)
 
+plot(error_data_35_6)
+print(RMSE_data_35_6)
+
+plot(error_data_28_4)
+print(RMSE_data_28_4)
+
+
 ```
-
-```{r}
-
-```
-
-
 
 
 
