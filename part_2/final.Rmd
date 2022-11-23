@@ -111,7 +111,7 @@ dat$cogscore<-cog$cogscore
 Extract variables related to modifiable risk factors identified in literature: education, hearing loss, traumatic brain injury, hypertension, alcohol consumption, smoking, obesity, physical activity, depression, social isolation, diabetes, and air pollution [Livingston et al. (2020)](https://www.thelancet.com/article/S0140-6736(20)30367-6/fulltext). Refer to the easySHARE guide for a description of the variables availble. You may also consider other relevant risk factors, along with an explanation and motivation. Gender and age are also relevant variables to consider, e.g. to explore differences between men and women [Beam et al. (2018)](https://pubmed.ncbi.nlm.nih.gov/30010124/).
 
 
-```{r}
+```{r filtering_df}
 #filter subset of dataframe
 df <- dat %>%
   filter(country == 35) %>%
@@ -150,30 +150,147 @@ df_final <- na.omit(df_columns)
 
 ```
 
-female
-age
-isced1997_r
-eduyears_mod
-hhsize
-sphus
-diabetes
-hypertension
-euro5
-eurod
-mobilityind
-bmi
-ever_smoked
-br010_mod
-br015_
-everyday_tasks
-cogscore
+## Exploring data, stats:
 
+By first instinct, mother_alive and father_alive we would think that these could confound with age. So from exploriung the relationship,  this graph cleary shows that as the mean of the distribution of age is higher for when mother_alive is yes.
+
+Confounding variables:
+
+```{r mother_alive}
+#cor(df_final$age, df_final$mother_alive)
+boxplot(df$age ~ df$mother_alive, data = df)
+mean(df_final$age[df_final$mother_alive =="1"])
+
+```
+
+This shows it for father_alive, by the proportion of if the observations age is greater than 60, then there is only a small proportion with their father still alive.
+
+```{r proportion_father_alive}
+x<-prop.table(xtabs(~ (round(age)>60) +father_alive, df),2)
+plot(x)
+
+```
+
+```{r father_alive}
+boxplot(df$age ~ df$mother_alive, data = df)
+
+```
+
+
+Its clear that the age of chronic mod, is much higher and so we can conclude that chronic_mod confounds with age.
+
+```{r age_chronic_mod}
+
+df %>%
+  ggplot(aes(x=chronic_mod, y = age)) +
+  geom_point()
+
+
+```
+
+
+We want to look specifically at when chronic_mod is 2 and 5, for hypertension and diabetes respectively. And so its clear the 
+
+Got this table, unsure how to extract columns for the results we were looking at. would then be able to take the mean of them to discuss.
+
+```{r numerical_table}
+#TODO: why like this? - heatmap or similar?
+table(round(df$age), df$chronic_mod)
+
+```
+
+
+By this simple box plot clear that the distribution of age is much higher. We can then sya that cognitive score once calculated wont be affected by an indivual being young as there is no age observation that will skew this. Hence also concluding that when looking at dementia it is clear that it is only affected in older ages.
+
+```{r hist_of_ages}
+
+y <-table(round(df_final$age))
+barplot(y)
+
+dat %>%
+  ggplot(aes(x=age)) +
+  geom_histogram(bins = 45)
+
+```
+
+
+
+When first looking at the data, we wanted to clearly be able to see if there was any problematic data we would have to deal with. This graph shows the amount of NAs and so from here we are able to look at the mostly NA columns closer to decide if they need to be kept in to further our investigation.
+
+
+```{r proprtion_barplots}
+#TODO: new variable - needed? Also axis labels + title
+a<-prop.table(xtabs(~ sphus+chronic_mod, dat),2)
+barplot(a)
+```
+
+
+Looking at obesity:
+talked about this in the tut. to talk about obesity, higher percent of large BMI, the more struggle to stand up, climb several sets of stairs etc. 
+
+We looked at different causes of obesity, and so from our given data we combined bmi and lgmuscle, to look at the percent of bmi by mobility. We see that the higher percent of bmi, and the higher the struggle of standing up and the other parts of lgmuscle, which would coincide with our intuitive. Then we would be able to look at this with cognitive score.
+```{r obesity}
+#TODO: new variable - needed? + labels & title
+o<-prop.table(xtabs(~ bmi2+ lgmuscle, dat),2)
+barplot(o)
+barplot(o,las=2,legend.text=TRUE, main= "Percent bmi by mobility (barplot)")
+```
+
+
+This doesnt give anything interesting, just that its very mixed data
+```{r age_bmi}
+#TODO - keeping?
+ggplot(dat, aes(bmi,age,color=female)) + geom_point() + stat_smooth(method="lm")
+```
+
+
+```{r combining_lgmuscle_and_mobility}
+
+#TODO - what's this for? can we delete?
+dat$Combined <- str_c(dat$lgmuscle, '', dat$mobilityind)
+
+#view(dat$Combined)
+#plot(dat$Combined, dat$age)
+
+```
+
+
+
+Smoking - however cant get this graph to work and look like what we want. However one way I got showed it didn't really show anything interesing.
+```{r}
+#TODO - delete this? (and above comment?)
+ggplot(dat, aes(x=ever_smoked, y=age)) +
+  geom_violin() +
+  coord_cartesian(ylim = c(0,100), xlim = c(0,6) )
+```
+
+
+
+Clear trend that as age decreases the cogscore does too.
+```{r cogscore_age}
+#TODO - some form of density plot better here?
+ggplot(df_final, aes(x=age, y=cogscore)) +
+  geom_point()
+
+```
+
+```{r}
+#TODO: what does this show?
+ggplot(df_final, aes(x=sphus, y=cogscore)) +
+  geom_point()
+```
+
+```{r}
+#TODO: what does this show (xlabels, title, etc.?)
+ggplot(df_final, aes(x=isced1997_r, y=cogscore)) +
+  geom_point()
+```
 
 
 ## Creating a model
 
 
-```{r}
+```{r model_seup}
 set.seed(567)
 
 train_index <- sample(1:nrow(df_final), size =200)
@@ -185,7 +302,8 @@ df_train <- df_final[-train_index,]
 dplyr::intersect(df_train, df_test) 
 ```
 
-```{r}
+```{r placeholder}
+#TODO: remove this?
 #df_train$female <- as.factor(df_train$female)
 
 #df_train$isced1997_r <- as.factor(df_train$isced1997_r)
@@ -199,7 +317,7 @@ dplyr::intersect(df_train, df_test)
 
 ```
 
-```{r}
+```{r construct_model}
 lm1 <- lm(cogscore ~ ., data = df_train)
 formula(lm1)
 # could paste this formula into lm below. Note gender * () fits main effects plus interaction for each combination
@@ -215,7 +333,7 @@ summary(lm1)
 
 ```
 
-```{r }
+```{r update_model_1}
 
 model<-step(lm1, trace=F, k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
 summary(model)
@@ -225,12 +343,8 @@ plot(model)
 vars <- c("cogscore", "female", "age", "isced1997_r", "eduyears_mod", "sphus", "euro5", "eurod", "br015_", "everyday_tasks" )
 ```
 
-```{r}
-plot(df_train$cogscore, log(df_train$eduyears_mod) )
-```
 
-
-```{r}
+```{r upate_model_2}
 transform_model <- lm(cogscore ~ age*(female + age + isced1997_r + eduyears_mod + euro5 + 
     eurod + everyday_tasks ), data = df_train)
 
@@ -242,7 +356,7 @@ plot(new_model)
 
 Interactions with age pointless
 
-```{r }
+```{r producing_ci}
 # to include in table
 coefs<-model$coefficients 
 CI<- confint(model) 
@@ -252,13 +366,13 @@ print(CI)
 
 
 Note backwards produces different model
-```{r}
+```{r plotting_model}
 ggplot(df_train, aes(x = 0.9016* female - 0.1277* age + 0.6852*isced1997_r + 0.1493*eduyears_mod - 0.2282*sphus + 0.5693*euro5 - 0.2956*eurod - 0.1497*br015_  -0.4554*everyday_tasks, y = cogscore)) +
   geom_point() +
   stat_smooth()
 ```
 
-```{r}
+```{r getting_errors}
 # residual sum of squares 
 RSS <- c(crossprod(model$residuals))
 RSS_new <- c(crossprod(new_model$residuals))
@@ -276,13 +390,11 @@ print(RMSE_new)
 ```
 Low RMSE is good , higher on new model so doesn't predict as well. 
 
-```{r}
-table(dat$country, dat$wave)
-```
 
 # Validation
 ```{r sorting-dataframes}
 
+#TODO(max): make this use less variables!
 df_train_validation <- df_train[, names(df_train) %in% vars]
 df_test_validation <- df_test[, names(df_test) %in% vars]
 
@@ -309,14 +421,14 @@ df_w4_c28 <- na.omit(df_w4_c28)
 ```
 
 
-```{r}
+```{r plotting_differences}
 p_train <- data.frame(actual = df_train$cogscore, predicted = predict(model))
 head(p_train)
 plot(p_train$actual, p_train$predicted)
 ```
 
 
-```{r validation}
+```{r validation_test}
 p_test <- predict(model, df_test_validation)
 
 print(head(p_test))
@@ -331,8 +443,32 @@ print(RMSE_test)
 
 ```
 
-```{r}
 
+
+##Predictions - scoring
+
+```{r scoring}
+
+mean <-mean(df_final$cogscore)
+sd <- sd(df_final$cogscore)
+lwr1 <- mean - sd * qnorm(0.9) #TODO: naming?
+upr2 <- mean - sd * qnorm(0.1)
+
+#TODO: what is proper score? where is it defined?
+score_A <- cbind(RMSE, df_train) %>%
+  mutate(
+    se = proper_score("se", cogscore, mean = mean(cogscore)),
+    ds = proper_score("ds", cogscore, mean = mean(cogscore), sd = sd(cogscore)),
+    interval = proper_score("interval", cogscore,
+                            lwr = lwr1, upr = upr2, alpha = 0.1)
+  )
+score_A_table <-
+  rbind(cbind(score_A, model = "A")) %>%
+  group_by(model) %>%
+          summarise(se = mean(se),
+                    ds = mean(ds),
+                    interval = mean(interval))
+knitr::kable(score_A_table)
 ```
 
 
