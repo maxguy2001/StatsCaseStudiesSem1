@@ -227,9 +227,16 @@ CI<- confint(model)
 print(CI)
 ```
 
+Linear model of just age:
+
+```{r}
+age_model <- lm(cogscore ~ age, data = df_train)
+
+summary(age_model)
+```
 
 
-Note backwards produces different model
+
 ```{r}
 ggplot(df_train, aes(x = 0.9016* female - 0.1277* age + 0.6852*isced1997_r + 0.1493*eduyears_mod - 0.2282*sphus + 0.5693*euro5 - 0.2956*eurod - 0.1497*br015_  -0.4554*everyday_tasks, y = cogscore)) +
   geom_point() +
@@ -245,7 +252,7 @@ RSS_new <- c(crossprod(new_model$residuals))
 MSE <- RSS/length(model$residuals)
 MSE_new <- RSS_new/length(new_model$residuals)
 
-# root mean sqaure error
+# root mean square error
 RMSE <- sqrt(MSE)
 RMSE_new <- sqrt(MSE_new)
 
@@ -253,10 +260,6 @@ print(RMSE)
 print(RMSE_new)
 ```
 Low RMSE is good , higher on new model so doesn't predict as well. 
-
-```{r}
-table(dat$country, dat$wave)
-```
 
 # Validation
 ```{r sorting-dataframes}
@@ -322,8 +325,6 @@ print(RMSE_data_35_6)
 
 plot(error_data_28_4)
 print(RMSE_data_28_4)
-
-
 ```
 
 
