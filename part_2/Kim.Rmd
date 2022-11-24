@@ -116,7 +116,7 @@ barplot(o,las=2,legend.text=TRUE, main= "Percent bmi by mobility (barplot)")
 ```
 
 
-This doesnt give anything interesting, just that its very mixed data
+This doesn't give anything interesting, just that its very mixed data
 ```{r age bmi}
 ggplot(dat, aes(bmi,age,color=female)) + geom_point() + stat_smooth(method="lm")
 ```
@@ -133,7 +133,7 @@ view(dat$Combined)
 
 
 
-Smoking - however cant get this graph to work and look like what we want. However one way I got showed it didn't really show anything interesing.
+Smoking - however cant get this graph to work and look like what we want. However one way I got showed it didn't really show anything interesting.
 ```{r}
 #boxplot(dat$ever_smoked> 0, dat$age)
 
@@ -175,17 +175,19 @@ ggplot(df_final, aes(x=isced1997_r, y=cogscore)) +
 
 ```{r}
 
+
+pred_A <- predict(model, newdata = df_final)
 mean <-mean(cogscore)
 sd <- sd(cogscore)
 lwr1 <- mean - sd * qnorm(0.9)
-upr2 <- mean - sd * qnorm(0.1)
+upr1 <- mean - sd * qnorm(0.1)
 
-score_A <- cbind(RMSE, df_train) %>%
+score_A <- cbind(pred_A, df_final) %>%
   mutate(
     se = proper_score("se", cogscore, mean = mean(cogscore)),
     ds = proper_score("ds", cogscore, mean = mean(cogscore), sd = sd(cogscore)),
     interval = proper_score("interval", cogscore,
-                            lwr = lwr1, upr = upr2, alpha = 0.1)
+                            lwr = lwr1, upr = upr1, alpha = 0.1)
   )
 score_A_table <-
   rbind(cbind(score_A, model = "A")) %>%
@@ -193,7 +195,13 @@ score_A_table <-
           summarise(se = mean(se),
                     ds = mean(ds),
                     interval = mean(interval))
-knitr::kable(score_A_table)
+knitr::kable(score_A_table) 
+```
+
+
+```{r}
+
+
 ```
 
 
