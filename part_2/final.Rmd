@@ -216,8 +216,6 @@ barplot(table(round(df_final$age)),
 ```
 
 
-When first looking at the data, we wanted to clearly be able to see if there was any problematic data we would have to deal with. This graph shows the amount of NAs and so from here we are able to look at the mostly NA columns closer to decide if they need to be kept in to further our investigation.
-
 
 ```{r proprtion_barplots}
 #TODO: new variable - needed? Also axis labels + title
@@ -260,9 +258,14 @@ dat$Combined <- str_c(dat$lgmuscle, '', dat$mobilityind)
 Smoking - however cant get this graph to work and look like what we want. However one way I got showed it didn't really show anything interesing.
 ```{r}
 #TODO - delete this? (and above comment?)
-ggplot(dat, aes(x=ever_smoked, y=age)) +
-  geom_violin() +
-  coord_cartesian(ylim = c(0,100), xlim = c(0,6) )
+
+boxplot(round(df$age) ~ df$ever_smoked, 
+        data = df, 
+        main="Corelation between Age and Smoking", 
+        xlab= "ever_smoked", 
+        ylab= "age")
+
+
 ```
 
 
@@ -273,18 +276,33 @@ Clear trend that as age decreases the cogscore does too.
 ggplot(df_final, aes(x=age, y=cogscore)) +
   geom_point()
 
+plot(density(df_final$cogscore) +
+       density(df_final$age))
+
 ```
 
 ```{r}
 #TODO: what does this show?
-ggplot(df_final, aes(x=sphus, y=cogscore)) +
-  geom_point()
+boxplot(round(df$cogscore) ~ round(df$sphus) , 
+        data = df, 
+        main="Corelation between Cogscore and self-percieved health", 
+        xlab= "sphus", 
+        ylab= "cogscore")
 ```
 
 ```{r}
 #TODO: what does this show (xlabels, title, etc.?)
-ggplot(df_final, aes(x=isced1997_r, y=cogscore)) +
-  geom_point()
+boxplot(round(df$cogscore) ~ round(df$isced1997_r) , 
+        data = df, 
+        main="Corelation between Cogscore and Level of education acheived", 
+        xlab= "isced1997_r", 
+        ylab= "cogscore")
+
+boxplot(round(df$cogscore) ~ round(df$eduyears_mod) , 
+        data = df, 
+        main="Corelation between Cogscore and Years of education", 
+        xlab= "eduyears_mod", 
+        ylab= "cogscore")
 ```
 
 
