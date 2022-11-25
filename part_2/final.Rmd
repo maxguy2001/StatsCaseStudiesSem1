@@ -180,7 +180,7 @@ This shows it for father_alive, by the proportion of if the observations age is 
 plot(prop.table(xtabs(~ (round(age)>60) +father_alive, df),2), 
      main="Proportion of Age >60, of Father Alive", 
      xlab="age > 60", 
-     col=c("springgreen3", "orangered2"))
+     col=c("forestgreen", "dodgerblue"))
 
 ```
 
@@ -188,9 +188,11 @@ plot(prop.table(xtabs(~ (round(age)>60) +father_alive, df),2),
 Its clear that the age of chronic mod, is much higher and so we can conclude that chronic_mod confounds with age.
 
 ```{r age_chronic_mod}
-df %>%
-  ggplot(aes(x=chronic_mod, y = age)) +
-  geom_point()
+boxplot(df$age ~ df$chronic_mod, 
+        data = df, 
+        main="Corelation between Age and Chronic Disease", 
+        xlab= "age", 
+        ylab= "chronic_mod")
 
 ```
 
@@ -211,18 +213,11 @@ By this simple box plot clear that the distribution of age is much higher. We ca
 ```{r hist_of_ages}
 
 barplot(table(round(df_final$age)), 
-        main="Age", 
-        col = "chartreuse3")
+        main="Histogram of Ages", 
+        col = "forestgreen")
 
 ```
 
-
-
-```{r proprtion_barplots}
-#TODO: new variable - needed? Also axis labels + title
-a<-prop.table(xtabs(~ sphus+chronic_mod, dat),2)
-barplot(a)
-```
 
 
 Looking at obesity:
@@ -232,8 +227,7 @@ We looked at different causes of obesity, and so from our given data we combined
 ```{r obesity}
 #TODO: new variable - needed? + labels & title
 o<-prop.table(xtabs(~ bmi2+ lgmuscle, dat),2)
-barplot(o)
-barplot(o,las=2,legend.text=TRUE, main= "Percent bmi by mobility (barplot)")
+barplot(o,las=2,legend.text=TRUE, main= "Percent bmi by mobility (barplot)", col = c("forestgreen", "dodgerblue", "firebrick1", "gold", "darkorchid"))
 ```
 
 
