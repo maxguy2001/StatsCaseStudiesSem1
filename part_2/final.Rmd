@@ -24,6 +24,7 @@ Load packages:
 library(tidyverse)
 library(gridExtra)
 library(visdat)
+\library(StatCompLab)
 ```
 
 ## Pre-processing
@@ -179,7 +180,7 @@ This shows it for father_alive, by the proportion of if the observations age is 
 plot(prop.table(xtabs(~ (round(age)>60) +father_alive, df),2), 
      main="Proportion of Age >60, of Father Alive", 
      xlab="age > 60", 
-     col=c("DarkGreen", "DarkRed"))
+     col=c("springgreen3", "orangered2"))
 
 ```
 
@@ -211,7 +212,7 @@ By this simple box plot clear that the distribution of age is much higher. We ca
 
 barplot(table(round(df_final$age)), 
         main="Age", 
-        col = "DarkGreen")
+        col = "chartreuse3")
 
 ```
 
@@ -276,8 +277,6 @@ Clear trend that as age decreases the cogscore does too.
 ggplot(df_final, aes(x=age, y=cogscore)) +
   geom_point()
 
-plot(density(df_final$cogscore) +
-       density(df_final$age))
 
 ```
 
@@ -406,6 +405,7 @@ RMSE_new <- sqrt(MSE_new)
 
 print(RMSE)
 print(RMSE_new)
+
 ```
 Low RMSE is good , higher on new model so doesn't predict as well. 
 
@@ -465,13 +465,14 @@ print(RMSE_test)
 
 
 ##Predictions - scoring
-
+This is taken from Statistical Computing:
 ```{r scoring}
+library(StatCompLab)
 
 mean <-mean(df_final$cogscore)
 sd <- sd(df_final$cogscore)
-lwr1 <- mean - sd * qnorm(0.9) #TODO: naming?
-upr2 <- mean - sd * qnorm(0.1)
+lwr <- mean - sd * qnorm(0.9) #TODO: naming?
+upr <- mean - sd * qnorm(0.1)
 
 #TODO: what is proper score? where is it defined?
 score_A <- cbind(RMSE, df_train) %>%
@@ -479,8 +480,9 @@ score_A <- cbind(RMSE, df_train) %>%
     se = proper_score("se", cogscore, mean = mean(cogscore)),
     ds = proper_score("ds", cogscore, mean = mean(cogscore), sd = sd(cogscore)),
     interval = proper_score("interval", cogscore,
-                            lwr = lwr1, upr = upr2, alpha = 0.1)
+                            lwr = lwr, upr = upr, alpha = 0.1)
   )
+
 score_A_table <-
   rbind(cbind(score_A, model = "A")) %>%
   group_by(model) %>%
@@ -488,6 +490,25 @@ score_A_table <-
                     ds = mean(ds),
                     interval = mean(interval))
 knitr::kable(score_A_table)
+```
+
+
+```{r scoring}
+score_B <- cbind(RMSE_test, df_train) %>%
+  mutate(
+    se = proper_score("se", cogscore, mean = mean(cogscore)),
+    ds = proper_score("ds", cogscore, mean = mean(cogscore), sd = sd(cogscore)),
+    interval = proper_score("interval", cogscore,
+                            lwr = lwr, upr = upr, alpha = 0.1)
+  )
+
+score_B_table <-
+  rbind(cbind(score_B, model = "A")) %>%
+  group_by(model) %>%
+          summarise(se = mean(se),
+                    ds = mean(ds),
+                    interval = mean(interval))
+knitr::kable(score_B_table)
 ```
 
 
