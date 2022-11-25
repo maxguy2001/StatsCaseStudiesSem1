@@ -23,6 +23,8 @@ Load packages:
 ```{r load_libs, message = FALSE}
 library(tidyverse)
 library(gridExtra)
+library(visdat)
+\library(StatCompLab)
 ```
 
 ## Pre-processing
@@ -152,27 +154,33 @@ df_final <- na.omit(df_columns)
 
 ## Exploring data, stats:
 
+
+When first looking at the data, we wanted to clearly be able to see if there was any problematic data we would have to deal with. This graph shows the amount of NAs and so from here we are able to look at the mostly NA columns closer to decide if they need to be kept in to further our investigation.
+```{r}
+vis_dat(df)
+```
+
+
 By first instinct, mother_alive and father_alive we would think that these could confound with age. So from exploriung the relationship,  this graph cleary shows that as the mean of the distribution of age is higher for when mother_alive is yes.
 
 Confounding variables:
 
 ```{r mother_alive}
-#cor(df_final$age, df_final$mother_alive)
-boxplot(df$age ~ df$mother_alive, data = df)
-mean(df_final$age[df_final$mother_alive =="1"])
+boxplot(df$age ~ df$mother_alive, 
+        data = df, 
+        main="Corelation between Age and Mother Alive", 
+        xlab= "age", 
+        ylab= "mother_alive")
 
 ```
 
 This shows it for father_alive, by the proportion of if the observations age is greater than 60, then there is only a small proportion with their father still alive.
 
 ```{r proportion_father_alive}
-x<-prop.table(xtabs(~ (round(age)>60) +father_alive, df),2)
-plot(x)
-
-```
-
-```{r father_alive}
-boxplot(df$age ~ df$mother_alive, data = df)
+plot(prop.table(xtabs(~ (round(age)>60) +father_alive, df),2), 
+     main="Proportion of Age >60, of Father Alive", 
+     xlab="age > 60", 
+     col=c("forestgreen", "dodgerblue"))
 
 ```
 
@@ -180,11 +188,11 @@ boxplot(df$age ~ df$mother_alive, data = df)
 Its clear that the age of chronic mod, is much higher and so we can conclude that chronic_mod confounds with age.
 
 ```{r age_chronic_mod}
-
-df %>%
-  ggplot(aes(x=chronic_mod, y = age)) +
-  geom_point()
-
+boxplot(df$age ~ df$chronic_mod, 
+        data = df, 
+        main="Corelation between Age and Chronic Disease", 
+        xlab= "age", 
+        ylab= "chronic_mod")
 
 ```
 
@@ -200,29 +208,16 @@ table(round(df$age), df$chronic_mod)
 ```
 
 
-By this simple box plot clear that the distribution of age is much higher. We can then sya that cognitive score once calculated wont be affected by an indivual being young as there is no age observation that will skew this. Hence also concluding that when looking at dementia it is clear that it is only affected in older ages.
+By this simple box plot clear that the distribution of age is much higher. We can then say that cognitive score once calculated wont be affected by an individual being young as there is no age observation that will skew this. Hence also concluding that when looking at dementia it is clear that it is only affected in older ages.
 
 ```{r hist_of_ages}
 
-y <-table(round(df_final$age))
-barplot(y)
-
-dat %>%
-  ggplot(aes(x=age)) +
-  geom_histogram(bins = 45)
+barplot(table(round(df_final$age)), 
+        main="Histogram of Ages", 
+        col = "forestgreen")
 
 ```
 
-
-
-When first looking at the data, we wanted to clearly be able to see if there was any problematic data we would have to deal with. This graph shows the amount of NAs and so from here we are able to look at the mostly NA columns closer to decide if they need to be kept in to further our investigation.
-
-
-```{r proprtion_barplots}
-#TODO: new variable - needed? Also axis labels + title
-a<-prop.table(xtabs(~ sphus+chronic_mod, dat),2)
-barplot(a)
-```
 
 
 Looking at obesity:
@@ -232,8 +227,7 @@ We looked at different causes of obesity, and so from our given data we combined
 ```{r obesity}
 #TODO: new variable - needed? + labels & title
 o<-prop.table(xtabs(~ bmi2+ lgmuscle, dat),2)
-barplot(o)
-barplot(o,las=2,legend.text=TRUE, main= "Percent bmi by mobility (barplot)")
+barplot(o,las=2,legend.text=TRUE, main= "Percent bmi by mobility (barplot)", col = c("forestgreen", "dodgerblue", "firebrick1", "gold", "darkorchid"))
 ```
 
 
@@ -259,9 +253,14 @@ dat$Combined <- str_c(dat$lgmuscle, '', dat$mobilityind)
 Smoking - however cant get this graph to work and look like what we want. However one way I got showed it didn't really show anything interesing.
 ```{r}
 #TODO - delete this? (and above comment?)
-ggplot(dat, aes(x=ever_smoked, y=age)) +
-  geom_violin() +
-  coord_cartesian(ylim = c(0,100), xlim = c(0,6) )
+
+boxplot(round(df$age) ~ df$ever_smoked, 
+        data = df, 
+        main="Corelation between Age and Smoking", 
+        xlab= "ever_smoked", 
+        ylab= "age")
+
+
 ```
 
 
@@ -272,18 +271,31 @@ Clear trend that as age decreases the cogscore does too.
 ggplot(df_final, aes(x=age, y=cogscore)) +
   geom_point()
 
+
 ```
 
 ```{r}
 #TODO: what does this show?
-ggplot(df_final, aes(x=sphus, y=cogscore)) +
-  geom_point()
+boxplot(round(df$cogscore) ~ round(df$sphus) , 
+        data = df, 
+        main="Corelation between Cogscore and self-percieved health", 
+        xlab= "sphus", 
+        ylab= "cogscore")
 ```
 
 ```{r}
 #TODO: what does this show (xlabels, title, etc.?)
-ggplot(df_final, aes(x=isced1997_r, y=cogscore)) +
-  geom_point()
+boxplot(round(df$cogscore) ~ round(df$isced1997_r) , 
+        data = df, 
+        main="Corelation between Cogscore and Level of education acheived", 
+        xlab= "isced1997_r", 
+        ylab= "cogscore")
+
+boxplot(round(df$cogscore) ~ round(df$eduyears_mod) , 
+        data = df, 
+        main="Corelation between Cogscore and Years of education", 
+        xlab= "eduyears_mod", 
+        ylab= "cogscore")
 ```
 
 
@@ -387,6 +399,7 @@ RMSE_new <- sqrt(MSE_new)
 
 print(RMSE)
 print(RMSE_new)
+
 ```
 Low RMSE is good , higher on new model so doesn't predict as well. 
 
@@ -446,13 +459,14 @@ print(RMSE_test)
 
 
 ##Predictions - scoring
-
+This is taken from Statistical Computing:
 ```{r scoring}
+library(StatCompLab)
 
 mean <-mean(df_final$cogscore)
 sd <- sd(df_final$cogscore)
-lwr1 <- mean - sd * qnorm(0.9) #TODO: naming?
-upr2 <- mean - sd * qnorm(0.1)
+lwr <- mean - sd * qnorm(0.9) #TODO: naming?
+upr <- mean - sd * qnorm(0.1)
 
 #TODO: what is proper score? where is it defined?
 score_A <- cbind(RMSE, df_train) %>%
@@ -460,8 +474,9 @@ score_A <- cbind(RMSE, df_train) %>%
     se = proper_score("se", cogscore, mean = mean(cogscore)),
     ds = proper_score("ds", cogscore, mean = mean(cogscore), sd = sd(cogscore)),
     interval = proper_score("interval", cogscore,
-                            lwr = lwr1, upr = upr2, alpha = 0.1)
+                            lwr = lwr, upr = upr, alpha = 0.1)
   )
+
 score_A_table <-
   rbind(cbind(score_A, model = "A")) %>%
   group_by(model) %>%
@@ -469,6 +484,25 @@ score_A_table <-
                     ds = mean(ds),
                     interval = mean(interval))
 knitr::kable(score_A_table)
+```
+
+
+```{r scoring}
+score_B <- cbind(RMSE_test, df_train) %>%
+  mutate(
+    se = proper_score("se", cogscore, mean = mean(cogscore)),
+    ds = proper_score("ds", cogscore, mean = mean(cogscore), sd = sd(cogscore)),
+    interval = proper_score("interval", cogscore,
+                            lwr = lwr, upr = upr, alpha = 0.1)
+  )
+
+score_B_table <-
+  rbind(cbind(score_B, model = "A")) %>%
+  group_by(model) %>%
+          summarise(se = mean(se),
+                    ds = mean(ds),
+                    interval = mean(interval))
+knitr::kable(score_B_table)
 ```
 
 
