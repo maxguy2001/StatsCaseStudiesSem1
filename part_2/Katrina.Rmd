@@ -159,14 +159,14 @@ train_index <- sample(1:nrow(df_final), size =200)
 df_test <- df_final[train_index, ]
 df_train <- df_final[-train_index,]
 
-#check there is no intercept
+#check there is no overlap between data sets
 dplyr::intersect(df_train, df_test) 
 ```
 
 
 ```{r}
 lm <- lm(cogscore ~ ., data = df_train)
-formula(lm1)
+formula(lm)
 # could paste this formula into lm below. Note gender * () fits main effects plus interaction for each combination
 
 lm1 <- lm(cogscore ~ age*(female + age + isced1997_r + eduyears_mod + hhsize + 
@@ -194,10 +194,10 @@ plot(model_interactions)
 ```
 
 ```{r}
-transform_model <- lm(cogscore ~ age*(female + age + isced1997_r + eduyears_mod + euro5 + 
+new_model <- lm(cogscore ~ age*(female + age + isced1997_r + eduyears_mod + euro5 + 
     eurod + everyday_tasks ), data = df_train)
 
-new_model<-step(transform_model, trace=F, k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
+new_model<-step(new_model, trace=F, k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
 summary(new_model)
 formula(new_model)
 plot(new_model)
