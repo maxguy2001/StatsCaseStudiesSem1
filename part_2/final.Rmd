@@ -23,8 +23,8 @@ Load packages:
 ```{r load_libs, message = FALSE}
 library(tidyverse)
 library(gridExtra)
-#library(visdat)
-#library(StatCompLab)
+library(visdat)
+library(StatCompLab)
 ```
 
 ## Pre-processing
@@ -156,8 +156,8 @@ df_final <- na.omit(df_columns)
 
 
 When first looking at the data, we wanted to clearly be able to see if there was any problematic data we would have to deal with. This graph shows the amount of NAs and so from here we are able to look at the mostly NA columns closer to decide if they need to be kept in to further our investigation.
-```{r}
-#vis_dat(df)
+```{r vis_dat}
+vis_dat(df)
 ```
 
 
