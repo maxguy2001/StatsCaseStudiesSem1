@@ -226,11 +226,6 @@ RMSE <- sqrt(MSE)
 RMSE_new <- sqrt(MSE_new)
 RMSE_interactions <- sqrt(MSE_interactions)
 RMSE_age <- sqrt(MSE_age)
-
-print(RMSE)
-print(RMSE_new)
-print(RMSE_interactions)
-print(RMSE_age)
 ```
 
 Low RMSE is good , higher on new model so doesn't predict as well. 
@@ -245,7 +240,9 @@ print(CI)
 ```{r}
 ggplot(df_train, aes(x = 0.9016* female - 0.1277* age + 0.6852*isced1997_r + 0.1493*eduyears_mod - 0.2282*sphus + 0.5693*euro5 - 0.2956*eurod - 0.1497*br015_  -0.4554*everyday_tasks, y = cogscore)) +
   geom_point() +
-  stat_smooth()
+  stat_smooth()+
+  xlab('predictive variables') +
+  ggtitle('Plot of the linear model for predicting cogscore')
 ```
 
 
