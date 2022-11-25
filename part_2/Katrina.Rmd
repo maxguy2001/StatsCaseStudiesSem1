@@ -163,50 +163,35 @@ df_train <- df_final[-train_index,]
 dplyr::intersect(df_train, df_test) 
 ```
 
-```{r}
-#df_train$female <- as.factor(df_train$female)
-
-#df_train$isced1997_r <- as.factor(df_train$isced1997_r)
-#df_train$sphus <- as.factor(df_train$sphus)
-#df_train$euro5 <- as.factor(df_train$euro5)
-#df_train$hypertension <- as.factor(df_train$hypertension)
-#df_train$ever_smoked <- as.factor(df_train$ever_smoked)
-#df_train$br010_mod <- as.factor(df_train$br010_mod)
-#df_train$br015_ <- as.factor(df_train$br015_)
-#df_train$diabetes <- as.factor(df_train$diabetes)
-
-```
 
 ```{r}
-lm1 <- lm(cogscore ~ ., data = df_train)
+lm <- lm(cogscore ~ ., data = df_train)
 formula(lm1)
 # could paste this formula into lm below. Note gender * () fits main effects plus interaction for each combination
 
-lm1 <- lm(cogscore ~ female + age + isced1997_r + eduyears_mod + hhsize + 
+lm1 <- lm(cogscore ~ age*(female + age + isced1997_r + eduyears_mod + hhsize + 
     sphus + euro5 + eurod + mobilityind + bmi + ever_smoked + br010_mod + br015_ + diabetes + 
-    hypertension + everyday_tasks, data = df_train)    
+    hypertension + everyday_tasks), data = df_train)    
          
 # alternative would be to select models separately for males and females. This might be the easier option. As besides interaction with gender there would also be other interactions. Which would get rather complicated in the above model. 
-
-summary(lm1)
-#plot(lm1) # check out residual plots. Modelling log(bmi) might improve residual regarding constant variance assumption. But this makes interpretation more cumbersome. Note that we should check observations with high leverage
 
 ```
 
 ```{r }
 
-model<-step(lm1, trace=F, k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
+model<-step(lm, trace=F, k=log(nrow(df_train))) # BIC, Bayesian Information criterion. This penalises more for large sample size. Hence we end up with a smaller model.
 summary(model)
 formula(model)
 plot(model)
 
 vars <- c("cogscore", "female", "age", "isced1997_r", "eduyears_mod", "sphus", "euro5", "eurod", "br015_", "everyday_tasks" )
 ```
-
 ```{r}
-plot(df_train$cogscore, log(df_train$eduyears_mod) )
+model_interactions<-step(lm1, trace=F, k=log(nrow(df_train))) 
+summary(model_interactions)
+formula(model_interactions)
+plot(model_interactions)
 ```
-
 
 ```{r}
 transform_model <- lm(cogscore ~ age*(female + age + isced1997_r + eduyears_mod + euro5 + 
@@ -217,46 +202,54 @@ summary(new_model)
 formula(new_model)
 plot(new_model)
 ```
-
-Interactions with age pointless
-
-```{r }
-# to include in table
-coefs<-model$coefficients 
-CI<- confint(model) 
-print(CI)
-```
-
-
-
-Note backwards produces different model
 ```{r}
-ggplot(df_train, aes(x = 0.9016* female - 0.1277* age + 0.6852*isced1997_r + 0.1493*eduyears_mod - 0.2282*sphus + 0.5693*euro5 - 0.2956*eurod - 0.1497*br015_  -0.4554*everyday_tasks, y = cogscore)) +
-  geom_point() +
-  stat_smooth()
+model_age <- lm(cogscore ~ age, data = df_train)
+
+summary(model_age)
 ```
 
 ```{r}
 # residual sum of squares 
 RSS <- c(crossprod(model$residuals))
 RSS_new <- c(crossprod(new_model$residuals))
+RSS_interactions <- c(crossprod(model_interactions$residuals))
+RSS_age <- c(crossprod(model_age$residuals))
 
 # mean square error
 MSE <- RSS/length(model$residuals)
 MSE_new <- RSS_new/length(new_model$residuals)
+MSE_interactions <- RSS_interactions/length(model_interactions$residuals)
+MSE_age <- RSS_age/length(model_age$residuals)
 
-# root mean sqaure error
+# root mean square error
 RMSE <- sqrt(MSE)
 RMSE_new <- sqrt(MSE_new)
+RMSE_interactions <- sqrt(MSE_interactions)
+RMSE_age <- sqrt(MSE_age)
 
 print(RMSE)
 print(RMSE_new)
+print(RMSE_interactions)
+print(RMSE_age)
 ```
+
 Low RMSE is good , higher on new model so doesn't predict as well. 
 
-```{r}
-table(dat$country, dat$wave)
+```{r }
+# to include in table
+coefs<-model_interactions$coefficients 
+CI<- confint(model_interactions) 
+print(CI)
 ```
+
+```{r}
+ggplot(df_train, aes(x = 0.9016* female - 0.1277* age + 0.6852*isced1997_r + 0.1493*eduyears_mod - 0.2282*sphus + 0.5693*euro5 - 0.2956*eurod - 0.1497*br015_  -0.4554*everyday_tasks, y = cogscore)) +
+  geom_point() +
+  stat_smooth()
+```
+
+
+
 
 # Validation
 ```{r sorting-dataframes}
@@ -264,25 +257,31 @@ table(dat$country, dat$wave)
 df_train_validation <- df_train[, names(df_train) %in% vars]
 df_test_validation <- df_test[, names(df_test) %in% vars]
 
-dat_country_28 <- dat[dat$country == 28,]
-df_w4_c28 <- dat_country_28[dat_country_28$wave == 4,]
+data_vars <- dat
+data_vars$everyday_tasks <- data_vars$adla + data_vars$iadlza
 
-dat_country_35 <- dat[dat$country == 35,]
-df_w6_c35 <- dat_country_35[dat_country_35$wave == 6,]
+data_35 <- data_vars[data_vars$country == 35,]
+data_35_6 <- data_35[data_35$wave == 6,]
 
-df_w6_c35[df_w6_c35 < 0 ] <- NA
-df_w4_c28[df_w4_c28 < 0 ] <- NA
+data_28 <- data_vars[data_vars$country == 28,]
+data_28_4 <- data_28[data_28$wave == 4,]
 
-df_w6_c35 <- df_w6_c35[, names(df_w6_c35) %in% vars]
-df_w4_c28 <- df_w4_c28[, names(df_w4_c28) %in% vars]
+data_35_6 <- data_35_6[, names(data_35_6) %in% vars]
+data_35_6[data_35_6 < 0 ] <- NA
+
+data_28_4 <- data_28_4[, names(data_28_4) %in% vars]
+data_28_4[data_28_4 < 0 ] <- NA
+
+
+
 
 # count unusable rows
-nrow(df_w6_c35 %>% drop_na())
-nrow(df_w4_c28 %>% drop_na())
+nrow(data_35_6 %>% drop_na())
+nrow(data_28_4 %>% drop_na())
 
 # drop unusable rows
-df_w6_c35 <- na.omit(df_w6_c35)
-df_w4_c28 <- na.omit(df_w4_c28)
+data_35_6 <- na.omit(data_35_6)
+data_28_4 <- na.omit(data_28_4)
 
 ```
 
@@ -296,24 +295,27 @@ plot(p_train$actual, p_train$predicted)
 
 ```{r validation}
 p_test <- predict(model, df_test_validation)
-
-print(head(p_test))
+p_data_35_6 <- predict(model, data_35_6)
+p_data_28_4 <- predict(model, data_28_4)
 
 error_test <- p_test - df_test_validation[["cogscore"]]
 RMSE_test <- sqrt(mean(error_test^2))
 
+error_data_35_6 <- p_data_35_6 - data_35_6[["cogscore"]]
+RMSE_data_35_6 <- sqrt(mean(error_p_data_35_6^2))
+
+error_data_28_4 <- p_data_28_4 - data_35_6[["cogscore"]]
+RMSE_data_28_4 <- sqrt(mean(error_data_28_4^2))
+
 plot(error_test)
-
-
 print(RMSE_test)
 
+plot(error_data_35_6)
+print(RMSE_data_35_6)
+
+plot(error_data_28_4)
+print(RMSE_data_28_4)
 ```
-
-```{r}
-
-```
-
-
 
 
 
