@@ -187,7 +187,7 @@ plot(model)
 vars <- c("cogscore", "female", "age", "isced1997_r", "eduyears_mod", "sphus", "euro5", "eurod", "br015_", "everyday_tasks" )
 ```
 ```{r}
-model_interactions<-step(lm1, trace=F, k=log(nrow(df_train))) 
+model_interactions <- step(lm1, trace=F, k=log(nrow(df_train))) 
 summary(model_interactions)
 formula(model_interactions)
 plot(model_interactions)
@@ -234,15 +234,21 @@ Low RMSE is good , higher on new model so doesn't predict as well.
 # to include in table
 coefs<-model_interactions$coefficients 
 CI<- confint(model_interactions) 
-print(CI)
+
 ```
 
-```{r}
-ggplot(df_train, aes(x = 0.9016* female - 0.1277* age + 0.6852*isced1997_r + 0.1493*eduyears_mod - 0.2282*sphus + 0.5693*euro5 - 0.2956*eurod - 0.1497*br015_  -0.4554*everyday_tasks, y = cogscore)) +
+```{r linear-model plot}
+predicted <- fitted(model_interactions)
+
+plot_dataframe <- data.frame(predicted, df_train$cogscore)
+
+ggplot(plot_dataframe, aes(x = predicted, y = df_train$cogscore)) +
   geom_point() +
-  stat_smooth()+
-  xlab('predictive variables') +
-  ggtitle('Plot of the linear model for predicting cogscore')
+  stat_smooth() +
+  xlab('prediction variables') +
+  ylab('cognitive score')+
+  labs(title = 'Linear Model Plot')
+
 ```
 
 
