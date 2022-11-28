@@ -346,13 +346,19 @@ print(CI)
 ```
 
 
+```{r linear-model-plot}
+predicted <- fitted(model_interactions)
 
-```{r plotting_model}
-ggplot(df_train, aes(x = 0.9016* female - 0.1277* age + 0.6852*isced1997_r + 0.1493*eduyears_mod - 0.2282*sphus + 0.5693*euro5 - 0.2956*eurod - 0.1497*br015_  -0.4554*everyday_tasks, y = cogscore)) +
+plot_dataframe <- data.frame(predicted, df_train$cogscore)
+
+ggplot(plot_dataframe, aes(x = predicted, y = df_train$cogscore)) +
   geom_point() +
-  stat_smooth()
-```
+  stat_smooth() +
+  xlab('prediction variables') +
+  ylab('cognitive score')+
+  labs(title = 'Linear Model Plot')
 
+```
 
 # Validation
 ```{r sorting-dataframes}
@@ -409,6 +415,7 @@ rmse_w5_c35 <- getRMSE(df_w5_c35, model_interactions)
 rmse_w4_c28 <- getRMSE(df_w4_c28, model_interactions)
 
 ```
+
 ```{r show_rmse_results}
 print(rmse_test_validation)
 print(rmse_w4_c28)
