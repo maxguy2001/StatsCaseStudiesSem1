@@ -345,6 +345,32 @@ RMSE_age <- sqrt(MSE_age)
 coefs<-model_interactions$coefficients 
 CI<- confint(model_interactions) 
 print(CI)
+
+coef_confint <- cbind(coefs, CI) %>% as.data.frame()
+coef_confint <- coef_confint %>% mutate(variable=rownames(coef_confint))
+library(plyr) 
+coef_confint <- rename(coef_confint,c("coefs" = "Coefficients",
+                                      `2.5 %` = "lower_bound", 
+                                      `97.5 %` = "upper_bound"))
+coef_confint <- coef_confint %>% 
+  mutate_if(is.numeric, round, digits = 2) 
+plot_lm <- coef_confint[-1,] %>%  #remove row number 1 (The intercept) 
+  ggplot(aes(x=reorder(variable, Coefficients), y=Coefficients)) +
+  geom_point(shape = 15,
+             size  = 4,
+             position = "dodge", color="black") + 
+  geom_errorbar(aes(ymin  = lower_bound,
+                    ymax  = upper_bound),
+                size  = 1,
+                position = "dodge", color="turquoise4") +
+  theme(axis.title = element_text(face = "bold")) +
+  xlab("Variables") + ylab("Coeffecients with 95% CI") +
+  coord_flip(ylim = c(-1.5, 1.4)) + 
+  geom_hline(yintercept = 0, color = "red", size = 1) +
+   theme(axis.title = element_text(size = 17)) + 
+  theme(axis.text = element_text(size = 14)) 
+show(plot_lm)
+
 ```
 
 
