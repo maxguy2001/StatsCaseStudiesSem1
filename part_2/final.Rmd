@@ -23,8 +23,8 @@ Load packages:
 ```{r load_libs, message = FALSE}
 library(tidyverse)
 library(gridExtra)
-#library(visdat)
-#library(StatCompLab)
+library(visdat)
+library(StatCompLab)
 ```
 
 ## Pre-processing
