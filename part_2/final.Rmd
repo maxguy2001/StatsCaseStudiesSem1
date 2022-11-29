@@ -154,26 +154,25 @@ df_final <- na.omit(df_columns)
 ## Exploring data, stats:
 
 
-When first looking at the data, we wanted to clearly be able to see if there was any problematic data we would have to deal with. This graph shows the amount of NAs and so from here we are able to look at the mostly NA columns closer to decide if they need to be kept in to further our investigation.
+When first looking at the data, we wanted to clearly be able to see if there was any problematic data we would have to deal with. This shows the amount of NAs and so from here we are able to look at the mostly NA columns closer to decide if they need to be kept in to further our investigation.
 ```{r vis_dat}
-#vis_dat(df)
+vis_dat(df)
 ```
+From this plot we saw that no variable we planned to include from the Lancet report had a large number of missing values, therefore we didn't need to make any changes to our choice of variables.
 
-
-By first instinct, mother_alive and father_alive we would think that these could confound with age. So from exploring the relationship,  this graph clearly shows that as the mean of the distribution of age is higher for when mother_alive is yes.
-
-Confounding variables:
-
+Instincts suggest that $mother\_alive$ and $father\_alive$ may confound with age, as the older you get the older your parents also become so there is more chance that older individuals have fewer parents still alive. After exploring this relationship this, it clearly shows, as expected, that the mean age of those with their mother still alive is lower than for those where their mother is no longer alive.
 ```{r mother_alive}
+label=c("Yes","No")
 boxplot(df$age ~ df$mother_alive, 
         data = df, 
         main="Corelation between Age and Mother Alive", 
         xlab= "age", 
-        ylab= "mother_alive")
+        ylab= "mother_alive",
+        names = label)
 
 ```
 
-This shows it for father_alive, by the proportion of if the observations age is greater than 60, then there is only a small proportion with their father still alive.
+Then looking at the relationship between $father\_alive$ and age it is clear that again the proportion of those with their father still alive is greater for the younger age group. Therefore, both $mother\_ alive$ and $father\_alive$ are seen to confound with $age$.
 
 ```{r proportion_father_alive}
 plot(prop.table(xtabs(~ (round(age)>60) +father_alive, df),2), 
@@ -183,20 +182,7 @@ plot(prop.table(xtabs(~ (round(age)>60) +father_alive, df),2),
 
 ```
 
-
-Its clear that the age of chronic mod, is much higher and so we can conclude that chronic_mod confounds with age.
-
-```{r age_chronic_mod}
-boxplot(df$age ~ df$chronic_mod, 
-        data = df, 
-        main="Corelation between Age and Chronic Disease", 
-        xlab= "age", 
-        ylab= "chronic_mod")
-
-```
-
-
-By this simple box plot clear that the distribution of age is much higher. We can then say that cognitive score once calculated wont be affected by an individual being young as there is no age observation that will skew this. Hence also concluding that when looking at dementia it is clear that it is only affected in older ages.
+By this simple histogram it is clear that all those who participated were adults, as none were under 25. We can then say that cognitive score once calculated isn't affected by an individual being too young, causing cognitive score to be lower due to their brain not being fully developed. Hence, concluding that when looking at predicting dementia it won't be skewed by younger individuals.
 
 ```{r hist_of_ages}
 
@@ -206,6 +192,19 @@ barplot(table(round(df_final$age)),
 
 ```
 
+
+Each level of $chronic\_mod$ is a different disease, and from this plot we can see that the distribution of ages with each of these diseases is higher than the overall population distribution. This suggests there may be a relationship between the two variables, and $chronic\_mod$ may in fact confound with $age$.
+
+```{r age_chronic_mod}
+label2=c("Heart attack","Hypertension", "High Blood", "Stroke", "Diabetes", "Chronic Lung Disease", "Asmtha", "Arthritis", "Cancer")
+boxplot(df$age ~ df$chronic_mod, 
+        data = df, 
+        main="Corelation between Age and Chronic Disease", 
+        xlab= "age", 
+        ylab= "chronic_mod",
+        names = label2)
+
+```
 
 
 This graph shows there appears to be a a pattern between those who have smoked and the age of participants,  particularly the older participants. This may suggest that smoking has some impact on life expectancy but would need further investigation.
@@ -222,14 +221,15 @@ boxplot(round(df_final$age) ~ df_final$ever_smoked,
 ```
 
 
-
-Clear trend that as age decreases the cogscore does too.
+Now looking specifically at the cognitive score, we can look into how age compares with cognitive score. It is clear that as age decreases cognitive score does too, which is intuitive from previous investigation however can be seen clearly with the red line.
 ```{r cogscore_age}
 ggplot(df_final, aes(x=age, y=cogscore)) +
   geom_point(alpha=0.2) + 
   geom_smooth(method="lm", se=FALSE, color = "red", formula=y~x)
 
 ```
+
+The box plot shows that as self-perceived health decreases as cognitive score decreases, showing that cognitive score is affected by one's perception of their own health, so can be used as a predictor to look into further.
 
 ```{r self_health}
 
@@ -240,6 +240,8 @@ boxplot(round(df_final$cogscore) ~ round(df_final$sphus) ,
         ylab= "cogscore")
 ```
 
+
+Looking at the box plot between education level reached and cognitive score, we can see that there is a clear relationship between these variables. As education level reached increases, cognitive score also increases and therefore may be a good predictor of $cogscore$ to use in our model.
 ```{r education_trend}
 boxplot(round(df_final$cogscore) ~ round(df_final$isced1997_r) , 
         data = df_final, 
@@ -454,21 +456,32 @@ knitr::kable(score_A_table)
 
 
 ```{r scoring}
-score_B <- cbind(RMSE_test, df_train) %>%
+pred_real <- predict(model, newdata = df_final)
+pred_base <- predict(model_interactions, newdata = df_train)
+mean <-mean(df_final$cogscore)
+sd <- sd(df_final$cogscore)
+lwr1 <- mean - sd * qnorm(0.9)
+upr1 <- mean - sd * qnorm(0.1)
+
+
+score_real <- cbind(pred_real, df_final) %>%
   mutate(
-    se = proper_score("se", cogscore, mean = mean(cogscore)),
-    ds = proper_score("ds", cogscore, mean = mean(cogscore), sd = sd(cogscore)),
+    se = proper_score("se", cogscore, mean = mean),
+    ds = proper_score("ds", cogscore, mean = mean, sd = sd),
+    interval = proper_score("interval", cogscore,
+                            lwr = lwr, upr = upr, alpha = 0.1)
+  )
+score_base <- cbind(pred_base, df_train) %>%
+  mutate(
+    se = proper_score("se", cogscore, mean = mean),
+    ds = proper_score("ds", cogscore, mean = mean, sd = sd),
     interval = proper_score("interval", cogscore,
                             lwr = lwr, upr = upr, alpha = 0.1)
   )
 
-score_B_table <-
-  rbind(cbind(score_B, model = "A")) %>%
-  group_by(model) %>%
-          summarise(se = mean(se),
-                    ds = mean(ds),
-                    interval = mean(interval))
-knitr::kable(score_B_table)
+score_real
+score_base
+
 ```
 
 
